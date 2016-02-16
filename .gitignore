@@ -1,0 +1,5 @@
+data/
+*.Rhistory
+*.csv
+*.Rdata
+*.sav
