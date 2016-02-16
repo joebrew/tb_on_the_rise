@@ -145,7 +145,10 @@ tb <-
                   ifelse(grepl('M', age),
                          as.numeric(gsub('M', '', as.character(age))) / 12,
                          ifelse(age == '999', NA,
-                                as.numeric(as.character(age)))))))
+                                as.numeric(as.character(age))))))) %>%
+  # round years
+  mutate(years_old_round = 
+           round(years_old))
 
 # Write csv of cleaned data
 # setwd(data_dir)
