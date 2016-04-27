@@ -267,9 +267,10 @@ population$n[population$year == 1997 &
     4044, 
     3293)
 
-##### ESTIMATE POPULATION FOR YEARS WE DON'T HAVE
+##### INTERPOLATE POPULATION FOR YEARS WE DON'T HAVE
+# (AND EXTRAPOLATE FOR YEARS BEFORE FIRST CENSUS)
 denom <- 
-  expand.grid(year = 1986:2015,
+  expand.grid(year = 1995:2007,
               sex = c('male', 'female'),
               age_group = unique(sort(population$age_group)))
 denom$n <- NA
@@ -327,7 +328,77 @@ denom <-
 population <- denom
 rm(i, age_group, sex, denom, sub_data, this_row)
 
-# Write csv of cleaned data
-# setwd(data_dir)
-# # write_csv(tb 'cleaned_data.csv')
-# setwd(root)
+# NOW USE DSS's 2008 to 2014 GROWTH RATE TO
+# EXTRAPOLATE FORWARD
+denom <- 
+  expand.grid(year = 2008:2014,
+              sex = c('male', 'female'),
+              age_group = sort(unique(population$age_group)),
+              n = NA,
+              data_source = 'estimate')
+
+# Define a dss growth rate
+# based on Populacao_1997 a 2014.xls
+# sent by ariel to Alberto and Joe
+dss_growth_rate <- 
+  c(50819,
+    52130,
+    53961,
+    55155,
+    55810,
+    56964,
+    57992) / 
+  50819
+df <- data.frame(num = 1:length(dss_growth_rate),
+                 val = dss_growth_rate)
+fit <- lm(val ~ num, data = df)
+dss_growth_rate <- as.numeric(coef(fit)['num'])
+rm(df, fit)
+
+# Apply the growth rate to all of denom (forward-looking extrapolations)
+population_2007 <- population[population$year == 2007,]
+for (i in 1:nrow(denom)){
+  # subset data
+  sub_data <- denom[i,]
+  # Get the 2007 value
+  value_2007 <- 
+    population_2007$n[population_2007$sex == sub_data$sex &
+                        population_2007$age_group == sub_data$age_group]
+  # Get difference in years
+  year_difference <- sub_data$year - 2007
+  # Multiply year difference by growth rate to get additions
+  new_val <- ((year_difference * dss_growth_rate) + 1) * 
+    value_2007
+  # Inject into dataframe
+  denom$n[i] <- new_val
+}
+
+# Join denom to population
+population <- rbind(population, denom)
+
+# Arrange
+population <- 
+  population %>%
+  arrange(year, sex, age_group)
+
+# Make a temporary data frame and plot
+temp <- population
+
+temp$Group <- paste0(temp$sex, ' age ', temp$age_group)
+
+ggplot(data = temp,
+       aes(x = year, y = n, group = Group, color = Group)) +
+  geom_line()
+
+# Remove junk
+rm(denom, population_2007, sub_data, temp,
+   by_year, dss_growth_rate, growth, i,
+   n, n_years, new_val, val, val_1997,
+   year, year_difference, years, years_since_1997)
+
+
+# Write csvs of cleaned data
+setwd(data_dir)
+write_csv(tb, 'cleaned_data.csv')
+write_csv(population, 'population.csv')
+setwd(root)
