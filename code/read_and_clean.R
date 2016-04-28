@@ -396,6 +396,20 @@ rm(denom, population_2007, sub_data, temp,
    n, n_years, new_val, val, val_1997,
    year, year_difference, years, years_since_1997)
 
+##### BACK TO TB DATA
+# Get age groups compatible with our population data
+age_group_df <- 
+  data.frame(years_old_round = 0:99)
+age_group_df$age_group <- 
+  c('00',
+    rep('01-04', 4),
+    rep(as.character(sort(unique(population$age_group)))[3:17], each = 5),
+    rep('80+', 20))
+tb <- 
+  tb %>%
+  left_join(age_group_df,
+            by = 'years_old_round')
+rm(age_group_df)
 
 # Write csvs of cleaned data
 setwd(data_dir)
