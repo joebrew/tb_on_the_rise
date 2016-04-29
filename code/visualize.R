@@ -346,3 +346,188 @@ ggplot(data = temp,
                     values = cols) 
   # guides(fill = guide_legend(reverse = TRUE))
 
+##### TB TYPE AND SMEAR TESTING
+
+# Total number of pulmonary
+table(tb$tb_type)
+prop.table(table(tb$tb_type))
+
+# Smear result among pulomonary
+table(tb$smear_result[tb$tb_type == 'pulmonary'] == 'not done',
+      useNA = 'ifany')
+prop.table(table(tb$smear_result[tb$tb_type == 'pulmonary'] == 'not done', useNA = 'ifany'))
+table(tb$smear_result[tb$tb_type == 'pulmonary'], useNA = 'ifany')
+prop.table(table(tb$smear_result[tb$tb_type == 'pulmonary'], useNA = 'ifany'))
+
+# Incident cases who get smear test by year
+temp <-
+  tb %>% 
+  filter(incident_case) %>%
+  group_by(year) %>%
+  summarise(cases = n(),
+            smears = length(which(smear_result != 'not done' &
+                                    !is.na(smear_result)))) %>%
+  mutate(smear_rate = smears / cases * 100)
+temp
+
+ggplot(data = temp,
+       aes(x = year, y = smear_rate)) +
+  geom_area(fill = 'darkorange', alpha = 0.6) +
+  ylim(0, 100) +
+  xlab('Year') +
+  ylab('Percentage') +
+  theme_tb() +
+  ggtitle('Percentage of incident smear cases tested by year')
+
+# NUMBER of smears
+gathered <- tidyr::gather(temp, key, value, cases:smear_rate) 
+gathered <- gathered %>% filter(key != 'smear_rate')
+gathered$key <-
+  ifelse(gathered$key == 'cases', 'Not smeared',
+         ifelse(gathered$key == 'smears', 'Smeared',
+                NA))
+gathered$key <-
+  factor(gathered$key,
+         levels = c('Not smeared', 'Smeared'))
+cols <- c('darkgreen', 'darkorange')
+# Reverse order
+gathered <- gathered[nrow(gathered):1,]
+
+ggplot(data = gathered,
+       aes(x = year, 
+           y = value,
+           group = key,
+           fill = key)) +
+  geom_area(position = 'stack', alpha = 0.8) +
+  scale_fill_manual(name = '',
+                     values = cols) +
+  # guides(col = guide_legend(reverse = TRUE)) +
+    theme_tb() +
+    ggtitle('Smeared and non-smeared incident cases by year') +
+    xlab('Year') +
+    ylab('Cases')
+
+# Proportion of smear-negative results among those
+# having a smear test
+temp <-
+  tb %>%
+  filter(incident_case,
+         !is.na(smear_result),
+         smear_result != 'not done') %>%
+  mutate(year_group = ifelse(year <= 2000,
+                             '1997-2000',
+                             ifelse(year <= 2004,
+                                    '2001-2004',
+                                    ifelse(year <= 2008,
+                                           '2005-2008',
+                                           ifelse(year <= 2012,
+                                                  '2009-2012',
+                                                  NA))))) %>%
+  group_by(year_group) %>%
+  summarise(pos = length(which(smear_result == 'smear positive')),
+            neg = length(which(smear_result == 'smear negative')),
+            n = n()) %>%
+  mutate(p_pos = pos / n * 100,
+         p_neg = neg / n * 100)
+chisq.test(temp[,c('pos', 'neg')])
+
+# Among smear-negative, how many are hiv
+temp <-
+  tb %>%
+  filter(incident_case,
+         !is.na(smear_result),
+         smear_result != 'not done',
+         hiv_status != 'unknown') 
+tbl <- table(temp$smear_result, temp$hiv_status)
+tbl
+prop.table(tbl, 1) * 100
+chisq.test(tbl)
+
+
+# EXTRAPULOMNARY TB
+temp <-
+  tb %>%
+  filter(incident_case) %>%
+  group_by(tb_type) %>%
+  tally %>%
+  filter(!is.na(tb_type)) %>%
+  mutate(p = n / sum(n) * 100)
+
+# extrapulm with known hiv status
+temp <-
+  tb %>%
+  filter(incident_case,
+         tb_type == 'extrapulmonary',
+         !is.na(hiv_status),
+         hiv_status != 'unknown') %>%
+  group_by(hiv_status) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100)
+
+# Get proportion of coinfection of hiv and extrapulmonary by time
+temp <-
+  tb %>%
+  filter(incident_case,
+         tb_type == 'extrapulmonary',
+         !is.na(hiv_status)) %>%
+  group_by(year, hiv_status) %>%
+  tally %>%
+  ungroup %>%
+  group_by(year) %>%
+  mutate(p = n / sum(n) * 100)
+
+# Make sure to have all years
+left <- 
+  expand.grid(year = unique(sort(temp$year)),
+              hiv_status = sort(unique(temp$hiv_status)))
+temp <- left_join(left, temp)
+temp$n[is.na(temp$n)] <- 0
+temp$p[is.na(temp$p)] <- 0
+# Reorder factor levels for plotting
+temp$hiv_status <- Hmisc::capitalize(temp$hiv_status)
+temp$hiv_status <- factor(temp$hiv_status,
+                          levels = c('Unknown',
+                                     'Negative',
+                                     'Positive'))
+
+
+cols <- c('darkgrey', 'darkgreen', 'darkorange')
+
+ggplot(data = temp,
+       aes(x = year, 
+           y = n)) +
+  geom_area(aes(fill = hiv_status),
+            # color = 'black',
+            position = 'stack', alpha = 0.7) +
+  scale_fill_manual(name = 'HIV status',
+                    values = cols) +
+  xlab('Year') +
+  ylab('Incident TB cases') +
+  theme_tb() +
+  ggtitle('HIV status among incident extrapulmonary TB cases by year')
+
+##### PREVIOUSLY TREATED OR NEW CASE
+table(tb$new_case)
+prop.table(table(tb$new_case)) * 100
+
+# Previously treated patients by year
+temp <-
+  tb %>%
+  group_by(year, new_case) %>%
+  tally %>%
+  filter(new_case != 'not known',
+         !is.na(new_case)) %>%
+  ungroup %>%
+  group_by(year) %>%
+  mutate(p = n / sum(n) * 100)
+
+ggplot(data = temp %>% filter(new_case == 'previously treated cases'),
+       aes(x = year,
+           y = p)) +
+  geom_line(color = 'darkorange', alpha = 0.8, size = 2) +
+  ylim(0, 100) +
+  xlab('Year') +
+  ylab('Percentage') +
+  ggtitle('Percentage of previously treated patients among incident cases by year') +
+  theme_tb()
+
