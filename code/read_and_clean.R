@@ -187,90 +187,102 @@ rm(males, females)
 population$n <- NA
 population$n[population$year == 2007 & 
                population$sex == 'male'] <-
-  c(18294,	
-    71362,	
-    81491,	
-    72298,	
-    61643,	
-    56441,	
-    51213,	
-    38603,	
-    29392,	
-    24123,	
-    21259,	
-    15034,	
-    10760,	
-    7713,
-    6588,	
-    4566,	
-    3012,	
-    2220)
+  ## ALL OF MAPUTO PROVINCE
+  # c(18294,	
+  #   71362,	
+  #   81491,	
+  #   72298,	
+  #   61643,	
+  #   56441,	
+  #   51213,	
+  #   38603,	
+  #   29392,	
+  #   24123,	
+  #   21259,	
+  #   15034,	
+  #   10760,	
+  #   7713,
+  #   6588,	
+  #   4566,	
+  #   3012,	
+  #   2220)
+# JUST MANHICA DISTRICT
+  c(2597, 10096, 11621, 10082, 7381, 5987, 5195, 3948, 2821, 2285, 2116, 1910, 1474, 1228, 1153, 841, 574, 412)
 population$n[population$year == 2007 & 
                population$sex == 'female'] <- 
-  c(18320, 
-    71862, 
-    83061, 
-    73945, 
-    63691, 
-    67678, 
-    58576, 
-    43714, 
-    33632, 
-    26201, 
-    21532, 
-    17468, 
-    13666, 
-    10311, 
-    8959, 
-    6886, 
-    4988, 
-    5207)
+  ## ALL OF MAPUTO PROVINCE
+  # c(18320, 
+  #   71862, 
+  #   83061, 
+  #   73945, 
+  #   63691, 
+  #   67678, 
+  #   58576, 
+  #   43714, 
+  #   33632, 
+  #   26201, 
+  #   21532, 
+  #   17468, 
+  #   13666, 
+  #   10311, 
+  #   8959, 
+  #   6886, 
+  #   4988, 
+  #   5207)
+# JUST MANHICA DISTRICT
+  c(2564, 10411, 11650, 10006, 7788, 7884, 6586, 5410, 4097, 3301, 3156, 2942, 2511, 2085, 1887, 1436, 1069, 1138)
 population$n[population$year == 1997 & 
                population$sex == 'male'] <-
-  c(11324, 
-    47372, 
-    54564, 
-    55013, 
-    47587, 
-    31514, 
-    24292, 
-    21659, 
-    21395, 
-    15487, 
-    12243, 
-    9277, 
-    8920, 
-    7048, 
-    5492, 
-    2644, 
-    2314, 
-    1644)
+  ## ALL OF MAPUTO PROVINCE
+  # c(11324, 
+  #   47372, 
+  #   54564, 
+  #   55013, 
+  #   47587, 
+  #   31514, 
+  #   24292, 
+  #   21659, 
+  #   21395, 
+  #   15487, 
+  #   12243, 
+  #   9277, 
+  #   8920, 
+  #   7048, 
+  #   5492, 
+  #   2644, 
+  #   2314, 
+  #   1644)
+# JUST MANHICA DISTRICT
+  c(2072, 7689, 8470, 8583, 7210, 4127, 3025, 2509, 2459, 2221, 2015, 1656, 1764, 1429, 1169, 514, 484, 404)
 
 population$n[population$year == 1997 & 
                population$sex == 'female'] <-
-  c(11636, 
-    48501, 
-    55412, 
-    55293, 
-    50270, 
-    41213, 
-    30931, 
-    25934, 
-    22479, 
-    17106, 
-    15577, 
-    12679, 
-    11050, 
-    8971, 
-    7741, 
-    4260, 
-    4044, 
-    3293)
+  ## ALL OF MAPUTO PROVINCE
+  # c(11636, 
+  #   48501, 
+  #   55412, 
+  #   55293, 
+  #   50270, 
+  #   41213, 
+  #   30931, 
+  #   25934, 
+  #   22479, 
+  #   17106, 
+  #   15577, 
+  #   12679, 
+  #   11050, 
+  #   8971, 
+  #   7741, 
+  #   4260, 
+  #   4044, 
+  #   3293)
+# Just Manhica district
+  c(2059, 8024, 8503, 8284, 8057, 6868, 4707, 3904, 3884, 3073, 3123, 2833, 2560, 2080, 1802, 981, 1002, 807)
 
 ##### INTERPOLATE POPULATION FOR YEARS WE DON'T HAVE
 # (AND EXTRAPOLATE FOR YEARS BEFORE FIRST CENSUS)
 denom <- 
-  expand.grid(year = 1995:2007,
+  expand.grid(year = 1997:2007,
               sex = c('male', 'female'),
               age_group = unique(sort(population$age_group)))
 denom$n <- NA
@@ -380,15 +392,15 @@ population <- rbind(population, denom)
 population <- 
   population %>%
   arrange(year, sex, age_group)
-
-# Make a temporary data frame and plot
-temp <- population
-
-temp$Group <- paste0(temp$sex, ' age ', temp$age_group)
-
-ggplot(data = temp,
-       aes(x = year, y = n, group = Group, color = Group)) +
-  geom_line()
+# 
+# # Make a temporary data frame and plot
+# temp <- population
+# 
+# temp$Group <- paste0(temp$sex, ' age ', temp$age_group)
+# 
+# ggplot(data = temp,
+#        aes(x = year, y = n, group = Group, color = Group)) +
+#   geom_line()
 
 # Remove junk
 rm(denom, population_2007, sub_data, temp,
@@ -410,6 +422,24 @@ tb <-
   left_join(age_group_df,
             by = 'years_old_round')
 rm(age_group_df)
+
+# Filter out periods outside of study period
+tb <- tb %>%
+  filter(year >= 1997, 
+         year <= 2012)
+
+popuation <-
+  population %>%
+  filter(year >= 1997, 
+         year <= 2012)
+
+# Make a boolean column in tb for incident cases
+tb$incident_case <-
+  ifelse(tb$incident_case == 'incident case', TRUE,
+         ifelse(tb$incident_case == 'non incident case', FALSE, NA))
+
+# Rename gender sex in tb
+tb$sex <- tb$gender
 
 # Write csvs of cleaned data
 setwd(data_dir)

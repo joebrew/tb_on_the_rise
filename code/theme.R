@@ -1,6 +1,6 @@
 
 theme_tb <- 
-  function(base_size = 14, base_family = "Times New Roman") {
+  function(base_size = 14, base_family = "Arial") {
     require(RColorBrewer)
     
     # Generate the colors for the chart procedurally with RColorBrewer
