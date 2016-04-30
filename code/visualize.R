@@ -531,3 +531,244 @@ ggplot(data = temp %>% filter(new_case == 'previously treated cases'),
   ggtitle('Percentage of previously treated patients among incident cases by year') +
   theme_tb()
 
+# Previously treated with known hiv status
+# what % were hiv pos
+tb %>%
+  filter(new_case != 'not known',
+         !is.na(new_case),
+         hiv_status != 'unknown',
+         new_case == 'previously treated cases') %>%
+  group_by(hiv_status) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100)
+
+##### TREATMENT OUTCOMES
+
+# Overall treatment success
+tb %>%
+  group_by(ttm_result) %>%
+  ungroup %>%
+  mutate(success = ttm_result %in% c('cured',
+                                     'treatment completed')) %>%
+  group_by(success) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100)
+
+# Treatment status over time
+temp <- 
+  tb %>%
+  group_by(year, ttm_result) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100,
+         ttm_result = Hmisc::capitalize(ttm_result)) 
+
+cols <- colorRampPalette(brewer.pal(9, 'Spectral'))(
+  length(unique(temp$ttm_result)))
+cols <- rev(cols)
+
+ggplot(data = temp,
+       aes(x = year, 
+           y = p,
+           group = ttm_result,
+           color = ttm_result)) +
+  geom_line() +
+  scale_color_manual(name = 'Treatment result',
+                     values = cols) +
+  xlab('Year') +
+  ylab('Percentage') +
+  theme_tb() +
+  ggtitle('Treatment outcomes by year: all cases')
+
+# How many total died?
+tb %>%
+  group_by(ttm_result) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100)
+
+# Treatment result by previously treated status
+temp <-
+  tb %>%
+  # filter(new_case == 'previously treated cases') %>%
+  filter(new_case != 'not known',
+         !is.na(new_case)) %>%
+  group_by(new_case,ttm_result) %>%
+  tally %>%
+  mutate(p = n / sum(n) * 100) %>%
+  ungroup %>%
+  arrange(desc(p)) %>%
+  mutate(new_case = ifelse(new_case == 'previously treated cases',
+                           'Previously treated',
+                           ifelse(new_case == 'new case',
+                                  'New',
+                                  NA)),
+         ttm_result = Hmisc::capitalize(ttm_result),
+         ttm_result = gsub(': transferred out', '', ttm_result))
+
+cols <- c('darkgreen', 'darkorange')
+
+ggplot(data = temp,
+       aes(x = ttm_result, 
+           y = p,
+           group = new_case,
+           fill = new_case)) +
+  geom_bar(stat = 'identity', position = 'dodge', alpha = 0.7) +
+  theme_tb() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1)) +
+  xlab('Treatment result') +
+  ylab('Percentage of all cases') +
+  ggtitle('Treatment result by new/previous case') +
+  scale_fill_manual(name = 'Case status',
+                    values = cols)
+  
+# Likelihood of cured different by previously treated status
+temp <- tb %>%
+  filter(new_case != 'not known',
+         !is.na(new_case))
+tbl <- table(temp$ttm_result == 'cured', temp$new_case)
+chisq.test(tbl)
+#likelihood of completing treatment
+tbl <- table(temp$ttm_result != 'treatment completed' |
+               temp$ttm_result == 'lost to follow up', 
+             temp$new_case)
+chisq.test(tbl)
+
+# Treatment success by sex
+# Overall treatment success
+temp <- 
+  tb %>%
+  mutate(success = ttm_result %in% c('cured',
+                                     'treatment completed')) %>%
+  group_by(sex, succcess) %>%
+  tally %>%
+  ungroup %>%
+  group_by(sex) %>%
+  mutate(p = n / sum(n) * 100)
+temp <- 
+  tb %>%
+  mutate(success = ttm_result %in% c('cured',
+                                     'treatment completed')) 
+tbl <- table(temp$success, temp$sex)
+chisq.test(tbl)
+
+# DEATHS BY SEX
+tbl <- table(tb$ttm_result == 'death', tb$sex)
+tbl
+prop.table(tbl, 2)
+chisq.test(tbl)
+
+# LOST TO FOLLOW UP BY SEX
+tbl <- table(tb$ttm_result == 'lost to follow up',
+             tb$sex)
+tbl
+prop.table(tbl, 2)
+chisq.test(tbl)
+
+# LOST TO FOLLOW UP BY AGE
+tbl <- 
+  table(tb$ttm_result == 'lost to follow up',
+        tb$age_group)
+tbl
+prop.table(tbl, 2) * 100
+chisq.test(tbl)
+
+temp <- 
+  tb %>%
+  group_by(lost = ifelse(ttm_result == 'lost to follow up',
+                         'Lost to follow up',
+                         'Followed up'),
+           age_group) %>%
+  tally() %>%
+  ungroup %>%
+  group_by(age_group) %>%
+  mutate(p = n / sum(n) * 100) %>%
+  filter(lost == 'Lost to follow up')
+
+ggplot(data = temp,
+       aes( x= age_group,
+            y = p)) +
+  geom_bar(fill = 'darkorange', alpha = 0.8, stat = 'identity') +
+  xlab('Age group') +
+  ylab('Percentage') +
+  ggtitle('Patients lost to follow up by age group') +
+  theme_tb() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Among patients with known HIV status, likelihood of death
+temp <-
+  tb %>%
+  filter(!is.na(hiv_status),
+         hiv_status != 'unknown') %>%
+         # !ttm_result %in% c('lost to follow up',
+                           # 'not evaluated: transferred out')) %>%
+  mutate(death = ifelse(ttm_result == 'death', 1, 0)) %>%
+  dplyr::select(death, hiv_status) 
+tbl <- table(temp$death, temp$hiv_status)
+tbl
+prop.table(tbl, 2)
+fit <- glm(death ~ hiv_status, data = temp)
+exp(coef(fit))
+exp(confint(fit))
+
+# Death by age group
+temp <-
+  tb %>%
+  mutate(death = ifelse(ttm_result == 'death', 1, 0)) %>%
+  group_by(age_group) %>%
+  summarise(deaths = length(which(death == 1)),
+            lives = length(which(death == 0)),
+            n = n()) %>%
+  mutate(p = deaths / n * 100)
+
+# Get confidence intervals
+simpasym <- function(n, p, z=1.96, cc=TRUE){
+  out <- list()
+  if(cc){
+    out$lb <- p - z*sqrt((p*(1-p))/n) - 0.5/n
+    out$ub <- p + z*sqrt((p*(1-p))/n) + 0.5/n
+  } else {
+    out$lb <- p - z*sqrt((p*(1-p))/n)
+    out$ub <- p + z*sqrt((p*(1-p))/n)
+  }
+  out
+}
+ci <- simpasym(n = temp$n,
+               p = temp$p / 100)
+temp$lwr <- ci$lb * 100
+temp$upr <- ci$ub * 100
+
+ggplot(data = temp,
+       aes(x = age_group, y = p)) +
+  # geom_point(group = 1, color = 'darkorange', alpha = 0.8) +
+  geom_pointrange(aes(ymax = upr, ymin = lwr),
+                  color = 'darkorange', alpha = 0.6) +
+  # geom_line(group = 1, color = 'darkorange', alpha = 0.6) +
+  theme_tb() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1)) +
+  xlab('Age group') +
+  ylab('Percentage') +
+  ggtitle('Death as treatment outcome by age group')
+
+# Treatment failure by hiv status
+temp <- 
+  tb %>%
+  filter(!is.na(hiv_status),
+         hiv_status != 'unknown') %>%
+  mutate(failure = ttm_result == 'treatment failed') %>%
+  dplyr::select(hiv_status, failure)
+tbl <- table(temp$hiv_status, temp$failure)
+tbl
+prop.table(tbl, 1)
+chisq.test(tbl)
+
+# Treatment failure by sex
+temp <- 
+  tb %>%
+  mutate(failure = ttm_result == 'treatment failed') %>%
+  dplyr::select(sex, failure)
+tbl <- table(temp$sex, temp$failure)
+tbl
+prop.table(tbl, 1)
+chisq.test(tbl)
