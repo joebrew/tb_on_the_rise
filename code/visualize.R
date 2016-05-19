@@ -83,6 +83,8 @@ ggplot(data = temp,
   ylab('Incidence (per 100,000)') +
   ggtitle('Average TB incidence by age group')
 
+a_incidence_by_age <- last_plot()
+
 # Population of district over all years
 temp <- population %>%
   filter(year >= 1997,
@@ -148,6 +150,8 @@ ggplot(data = ts,
   ylab('Incidence (per 100,000)') +
   theme_tb() +
   ggtitle('TB incidence over time')
+b_incidence_over_time <- last_plot()
+
 
 # Overall incidence by age group
 temp <- 
@@ -179,6 +183,7 @@ ggplot(data = temp,
   xlab('Age group') +
   ylab('Incidence (per 100,000)') +
   ggtitle('Average TB incidence by age group')
+c_incidence_by_age <- last_plot()
 
 # Plot incidence by sex
 temp <- 
@@ -202,6 +207,7 @@ ggplot(data = temp,
   ylab('Incidence (per 100,000)') +
   ggtitle('Incidence over time by sex') +
   theme_tb()
+d_incidence_by_sex_over_time <- last_plot()
 
 # Plot incidence by age group AND year
 temp <- 
@@ -222,6 +228,7 @@ ggplot(data = temp,
   ylab('Incidence (per 100,000)') +
   ggtitle('Incidence over time by age group') +
   theme_tb()
+e_incidence_by_age_over_time <- last_plot()
 
 # Which group over all time?
 temp <- 
@@ -254,6 +261,7 @@ ggplot(data = temp,
   scale_fill_manual(name = 'Sex',
                     values = cols) +
   guides(fill = guide_legend(reverse = TRUE))
+f_incidence_by_sex_and_age <- last_plot()
 
 #### HIV STATUS AND TB
 
@@ -316,6 +324,7 @@ ggplot(data = temp,
   ylab('Incident TB cases') +
   theme_tb() +
   ggtitle('HIV status among incident TB cases by year')
+g_hiv_status_amont_incident_tb_over_time <- last_plot()
 
 #### AGE GROUP AMONG TB HIV CASES
 temp <- tb %>%
@@ -345,6 +354,7 @@ ggplot(data = temp,
   scale_fill_manual(name = 'Status',
                     values = cols) 
   # guides(fill = guide_legend(reverse = TRUE))
+h_total_tb_and_hiv_coinfections <- last_plot()
 
 ##### TB TYPE AND SMEAR TESTING
 
@@ -378,6 +388,7 @@ ggplot(data = temp,
   ylab('Percentage') +
   theme_tb() +
   ggtitle('Percentage of incident smear cases tested by year')
+i_incidence_smear_cases_tested_over_time <- last_plot()
 
 # NUMBER of smears
 gathered <- tidyr::gather(temp, key, value, cases:smear_rate) 
@@ -403,9 +414,10 @@ ggplot(data = gathered,
                      values = cols) +
   # guides(col = guide_legend(reverse = TRUE)) +
     theme_tb() +
-    ggtitle('Smeared and non-smeared incident cases by year') +
+    ggtitle('Smeared and non-smeared incident cases') +
     xlab('Year') +
     ylab('Cases')
+j_smeared_non_smeared_cases_over_time <- last_plot()
 
 # Proportion of smear-negative results among those
 # having a smear test
@@ -502,9 +514,10 @@ ggplot(data = temp,
   scale_fill_manual(name = 'HIV status',
                     values = cols) +
   xlab('Year') +
-  ylab('Incident TB cases') +
+  ylab('Incident extrapulmonary TB cases') +
   theme_tb() +
-  ggtitle('HIV status among incident extrapulmonary TB cases by year')
+  ggtitle('HIV status among incident extrapulmonary TB cases')
+k_hiv_status_among_incident_extrapul_tb_over_time <- last_plot()
 
 ##### PREVIOUSLY TREATED OR NEW CASE
 table(tb$new_case)
@@ -530,6 +543,7 @@ ggplot(data = temp %>% filter(new_case == 'previously treated cases'),
   ylab('Percentage') +
   ggtitle('Percentage of previously treated patients among incident cases by year') +
   theme_tb()
+l_percentage_of_previously_treated_patients_among_incident_cases_over_time <- last_plot()
 
 # Previously treated with known hiv status
 # what % were hiv pos
@@ -578,6 +592,7 @@ ggplot(data = temp,
   ylab('Percentage') +
   theme_tb() +
   ggtitle('Treatment outcomes by year: all cases')
+m_outcomes_over_time <- last_plot()
 
 # How many total died?
 tb %>%
@@ -620,6 +635,7 @@ ggplot(data = temp,
   ggtitle('Treatment result by new/previous case') +
   scale_fill_manual(name = 'Case status',
                     values = cols)
+n_outcomes_by_previous_status <- last_plot()
   
 # Likelihood of cured different by previously treated status
 temp <- tb %>%
@@ -694,6 +710,7 @@ ggplot(data = temp,
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45,
                                    hjust = 1))
+o_lost_to_followup_by_age <- last_plot()
 
 # Among patients with known HIV status, likelihood of death
 temp <-
@@ -750,6 +767,7 @@ ggplot(data = temp,
   xlab('Age group') +
   ylab('Percentage') +
   ggtitle('Death as treatment outcome by age group')
+p_death_by_age <- last_plot()
 
 # Treatment failure by hiv status
 temp <- 
