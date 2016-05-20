@@ -33,10 +33,10 @@ dev.off()
 
 # FIGURE 2: RISK FACTORS
 pdf(file = 'figure_2_risk_factors.pdf')
-multiplot(a_incidence_by_age,
-          k_hiv_status_among_incident_extrapul_tb_over_time,
-          f_incidence_by_sex_and_age,
+multiplot(k_hiv_status_among_incident_extrapul_tb_over_time,
           h_total_tb_and_hiv_coinfections,
+          f_incidence_by_sex_and_age,
+          p_death_by_age,
           cols = 2)
 dev.off()
 
@@ -67,29 +67,56 @@ library(stargazer)
 library(Hmisc)
 library(tidyr)
 
+# Get time period
+time_periods <- 
+  data.frame(year = 1997:2012,
+             period = c(rep('1997-2000', 4), 
+                        rep('2001-2004', 4), 
+                        rep('2005-2008', 4), 
+                        rep('2009-2012', 4)))
+tb <- tb %>%
+  left_join(time_periods)
 
 # TREATMENT RESULTS BY SEX AND HIV STATUS
 tbl1 <- tb %>%
   filter(incident_case) %>%
-  group_by(sex, hiv_status, ttm_result) %>%
+  group_by(period, hiv_status, ttm_result) %>%
   tally %>%
-  filter(!is.na(ttm_result))
+  filter(!is.na(ttm_result)) %>%
+  mutate(n = ifelse(is.na(n), 0, n))
 
 tbl1 <- spread(data = tbl1, 
        key = hiv_status, 
        value = n) %>%
-  mutate(sex = capitalize(sex),
-         ttm_result = capitalize(ttm_result))
+  mutate(negative = ifelse(is.na(negative), 0, negative),
+         positive = ifelse(is.na(positive), 0, positive),
+         unknown = ifelse(is.na(unknown), 0, unknown)) %>%
+  mutate(period = as.character(period)) %>%
+  mutate(period = capitalize(period),
+         ttm_result = capitalize(ttm_result)) %>%
+  group_by(ttm_result) %>%
+  mutate(negative = paste0(negative, 
+                           ' (',
+                           round(100 * negative / sum(negative), digits = 1),
+                           '%)'),
+         positive = paste0(positive, 
+                           ' (',
+                           round(100 * positive / sum(positive), digits = 1),
+                           '%)'),
+         unknown = paste0(unknown, 
+                           ' (',
+                           round(100 * unknown / sum(unknown), digits = 1),
+                           '%)'))
 names(tbl1) <- capitalize(names(tbl1))
 tbl1 <- data.frame(tbl1)
 names(tbl1)[2] <- 'Treatment outcome'
 
-# Remove the repetivie genders
-tbl1$Sex[c(2:6, 8:12)] <- ''
+# Remove the repetivie periods
+tbl1$Period[c(2:6, 8:12, 14:18, 20:24)] <- ''
 
 stargazer(tbl1, 
           # type = 'html',
-          title = 'Treatment outcomes by sex and HIV status',
+          title = 'Treatment outcomes by time and HIV status',
           summary = FALSE,
           rownames = FALSE)
 

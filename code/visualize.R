@@ -516,7 +516,7 @@ ggplot(data = temp,
   xlab('Year') +
   ylab('Incident extrapulmonary TB cases') +
   theme_tb() +
-  ggtitle('HIV status among incident extrapulmonary TB cases')
+  ggtitle('HIV among incident\nextrapulmonary TB cases')
 k_hiv_status_among_incident_extrapul_tb_over_time <- last_plot()
 
 ##### PREVIOUSLY TREATED OR NEW CASE
