@@ -35,7 +35,7 @@ dev.off()
 pdf(file = 'figure_2_risk_factors.pdf')
 multiplot(k_hiv_status_among_incident_extrapul_tb_over_time,
           h_total_tb_and_hiv_coinfections,
-          f_incidence_by_sex_and_age,
+          z_incidence_by_sex_age_group_and_coinfection,
           p_death_by_age,
           cols = 2)
 dev.off()

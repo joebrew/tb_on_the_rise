@@ -263,6 +263,83 @@ ggplot(data = temp,
   guides(fill = guide_legend(reverse = TRUE))
 f_incidence_by_sex_and_age <- last_plot()
 
+# Sex, age group, HIV and TB
+temp <- 
+  tb %>%
+  filter(incident_case) %>%
+  filter(year >= 1997,
+         year <= 2012) %>%
+  group_by(year, age_group, sex) %>%
+  summarise(cases = n()) %>%
+  # join to population for period
+  left_join(population %>%
+              filter(year >= 1997,
+                     year <= 2012) %>%
+              group_by(age_group, year, sex) %>%
+              summarise(n = sum(n, na.rm = TRUE))) %>%
+  ungroup %>%
+  # calculate incidence per 100000
+  mutate(incidence = cases / n * 100000) %>%
+  # Get full period
+  group_by(age_group, sex) %>%
+  summarise(cases = sum(cases),
+            n = sum(n)) %>%
+  # Get the hiv incidence data in there too
+  left_join(tb %>%
+              filter(incident_case) %>%
+              filter(year >= 1997,
+                     year <= 2012) %>%
+              group_by(age_group, sex) %>%
+              summarise(hiv_cases = length(which(hiv_status == 'positive')))) %>%
+  mutate(incidence = cases / n * 100000,
+         co_incidence = hiv_cases / n * 100000) %>%
+  filter(!is.na(age_group))
+
+# Get long
+temp_long <- tidyr::gather(temp, key, value, incidence:co_incidence)
+
+cols <- adjustcolor(c('darkgreen', 'darkorange'), alpha.f = 0.6)
+temp$sex <- Hmisc::capitalize(temp$sex)
+
+# Make new variable for plotting
+temp_long$Group <-
+  ifelse(temp_long$sex == 'female' & temp_long$key == 'incidence',
+         'Female\nTB (all)',
+         ifelse(temp_long$sex == 'female' & temp_long$key == 'co_incidence',
+                'Female\nTB+HIV',
+                ifelse(temp_long$sex == 'male' & temp_long$key == 'incidence',
+                       'Male\nTB (all)',
+                       ifelse(temp_long$sex == 'male' & temp_long$key == 'co_incidence',
+                              'Male\nTB+HIV',
+                              NA))))
+
+cols <- c('darkred', 'darkorange', 'darkgreen', 'lightgreen')
+
+ggplot() +
+  geom_point(data = temp_long,
+           aes(x = age_group, 
+               y = value, 
+               # alpha = key,
+               color = Group,
+               group = Group),
+           alpha = 0.6) +
+  geom_line(data = temp_long,
+             aes(x = age_group, 
+                 y = value, 
+                 # alpha = key,
+                 color = Group,
+                 group = Group),
+            alpha = 0.6) +
+  theme_tb() +
+  theme(axis.text.x = element_text(angle = 45)) +
+  xlab('Age group') +
+  ylab('Incidence (per 100,000)') +
+  ggtitle('Incidence by sex, age group,\nand HIV/TB status') +
+  scale_color_manual(name = 'Sex',
+                    values = cols) #+
+  # guides(fill = guide_legend(reverse = TRUE))
+z_incidence_by_sex_age_group_and_coinfection <- last_plot()
+
 #### HIV STATUS AND TB
 
 # how many hivs before 2006
