@@ -33,7 +33,7 @@ theme_tb <-
       # theme(legend.position="none") +
       theme(legend.background = element_rect(fill=color_background)) +
       theme(legend.text = element_text(family = base_family,
-                                       size=base_size * 0.5,
+                                       size=base_size * 0.7,
                                        color=color_axis_title)) +
       
       # Set title and axis labels, and format these and tick marks

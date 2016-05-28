@@ -334,7 +334,7 @@ ggplot() +
   theme(axis.text.x = element_text(angle = 45)) +
   xlab('Age group') +
   ylab('Incidence (per 100,000)') +
-  ggtitle('Incidence by sex, age group,\nand HIV/TB status') +
+  ggtitle('Incidence by sex, age group, and HIV/TB status') +
   scale_color_manual(name = 'Sex',
                     values = cols) #+
   # guides(fill = guide_legend(reverse = TRUE))
@@ -835,8 +835,9 @@ temp$upr <- ci$ub * 100
 ggplot(data = temp,
        aes(x = age_group, y = p)) +
   # geom_point(group = 1, color = 'darkorange', alpha = 0.8) +
-  geom_pointrange(aes(ymax = upr, ymin = lwr),
-                  color = 'darkorange', alpha = 0.6) +
+  geom_point(color = 'darkorange', alpha = 0.6) +
+  # geom_pointrange(aes(ymax = upr, ymin = lwr),
+  #                 color = 'darkorange', alpha = 0.6) +
   # geom_line(group = 1, color = 'darkorange', alpha = 0.6) +
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45,

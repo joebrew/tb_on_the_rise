@@ -31,14 +31,28 @@ multiplot(b_incidence_over_time,
           cols = 2)
 dev.off()
 
+
+
 # FIGURE 2: RISK FACTORS
+
+lay_out = function(...) {    
+  x <- list(...)
+  n <- max(sapply(x, function(x) max(x[[2]])))
+  p <- max(sapply(x, function(x) max(x[[3]])))
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(n, p)))    
+  
+  for (i in seq_len(length(x))) {
+    print(x[[i]][[1]], vp = grid::viewport(layout.pos.row = x[[i]][[2]], 
+                                           layout.pos.col = x[[i]][[3]]))
+  }
+} 
+
 pdf(file = 'figure_2_risk_factors.pdf')
-multiplot(k_hiv_status_among_incident_extrapul_tb_over_time,
-          h_total_tb_and_hiv_coinfections,
-          z_incidence_by_sex_age_group_and_coinfection,
-          p_death_by_age,
-          cols = 2)
+lay_out(list(z_incidence_by_sex_age_group_and_coinfection, 1, 1:2),
+           list(h_total_tb_and_hiv_coinfections, 2, 1),
+           list(p_death_by_age, 2, 2))
 dev.off()
+
 
 # ALL FIGURES IN ONE DOCUMENT
 pdf(file = 'all_figures.pdf', height = 4.5, width = 4.5)
@@ -85,31 +99,104 @@ tbl1 <- tb %>%
   filter(!is.na(ttm_result)) %>%
   mutate(n = ifelse(is.na(n), 0, n))
 
+# # Get total for each period
+# tbl1 <-
+#   tbl1 %>%
+#   group_by(period) %>%
+#   dplyr::mutate(total = sum(n))
+# tbl1$total <- tbl1$n
+
+# Get percentage by hiv status and period
+tbl1 <- 
+  tbl1 %>%
+  group_by(period) %>%
+  dplyr::mutate(p = round(n / sum(n) * 100, digits = 2))
+
+# Combine n and p
+tbl1$n <- 
+  ifelse(tbl1$n > 1,
+         paste0(tbl1$n, ' (', tbl1$p, '%)'),
+         '')
+tbl1$p <- NULL
 tbl1 <- spread(data = tbl1, 
        key = hiv_status, 
-       value = n) %>%
-  mutate(negative = ifelse(is.na(negative), 0, negative),
-         positive = ifelse(is.na(positive), 0, positive),
-         unknown = ifelse(is.na(unknown), 0, unknown)) %>%
+       value = n) #%>%
+  # mutate(negative = ifelse(is.na(negative), 0, negative),
+  #        positive = ifelse(is.na(positive), 0, positive),
+  #        unknown = ifelse(is.na(unknown), 0, unknown))
+
+
+tbl1 <- tbl1 %>%
   mutate(period = as.character(period)) %>%
   mutate(period = capitalize(period),
-         ttm_result = capitalize(ttm_result)) %>%
-  group_by(ttm_result) %>%
-  mutate(negative = paste0(negative, 
-                           ' (',
-                           round(100 * negative / sum(negative), digits = 1),
-                           '%)'),
-         positive = paste0(positive, 
-                           ' (',
-                           round(100 * positive / sum(positive), digits = 1),
-                           '%)'),
-         unknown = paste0(unknown, 
-                           ' (',
-                           round(100 * unknown / sum(unknown), digits = 1),
-                           '%)'))
+         ttm_result = capitalize(ttm_result)) 
+# 
+# tbl1$negative[tbl1$negative == 0] <- ''
+# tbl1$positive[tbl1$positive <= 1] <- ''
+# Get percentage by period
+# 
+# tbl1 <- tbl1 %>%
+#   group_by(Period) %>%
+#   mutate(negative = ifelse(period %in% c('2005-2008',
+#                                          '2009-2012'),
+#                            paste0(negative, 
+#                                   ' (',
+#                                   round(100 * as.numeric(negative) / 
+#                                           sum(as.numeric(negative), na.rm = T), digits = 1),
+#                                   '%)'),
+#                            negative),
+#          positive = ifelse(period %in% c('2005-2008',
+#                                          '2009-2012'),
+#                            paste0(positive, 
+#                                   ' (',
+#                                   round(100 * as.numeric(positive) / 
+#                                           sum(as.numeric(positive), na.rm = T), digits = 1),
+#                                   '%)'),
+#                            positive),
+#          unknown = ifelse(period %in% c('2005-2008',
+#                                          '2009-2012'),
+#                            paste0(unknown, 
+#                                   ' (',
+#                                   round(100 * as.numeric(unknown) / 
+#                                           sum(as.numeric(unknown), na.rm = T), digits = 1),
+#                                   '%)'),
+#                            unknown))
+
 names(tbl1) <- capitalize(names(tbl1))
 tbl1 <- data.frame(tbl1)
 names(tbl1)[2] <- 'Treatment outcome'
+
+
+
+# # Rearrange columns
+# tbl1 <- 
+#   tbl1[,c('Period',
+#           'Treatment outcome',
+#           'Negative',
+#           'Positive',
+#           'Unknown',
+#           'Total')]
+
+# Add a column for totals
+extract_number <- function(z){
+  ifelse(is.na(z) | z == '', 0,
+         as.numeric(lapply(strsplit(z, ' '), 
+                                  function(x){x[[1]]})))
+  }
+
+tbl1$Total <-
+  extract_number(tbl1$Negative) +
+  c(extract_number(tbl1$Positive[1:12]), extract_number(tbl1$Positive[13:24])) +
+  extract_number(tbl1$Unknown)
+
+# Get Total of each period
+tbl1 <- 
+  tbl1 %>%
+  group_by(Period) %>%
+  dplyr::mutate(Total = paste0(Total, 
+                        ' (',
+                        round(Total / sum(Total) * 100, digits = 2),
+                        '%)'))
 
 # Remove the repetivie periods
 tbl1$Period[c(2:6, 8:12, 14:18, 20:24)] <- ''
