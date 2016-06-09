@@ -8,6 +8,9 @@ code_dir <- getwd()
 setwd(root)
 
 # Libraries
+
+# library(Rmisc)
+# library(extrafont)
 library(foreign)
 library(dplyr)
 library(ggplot2)
@@ -488,12 +491,12 @@ ggplot(data = gathered,
            fill = key)) +
   geom_area(position = 'stack', alpha = 0.8) +
   scale_fill_manual(name = '',
-                     values = cols) +
+                    values = cols) +
   # guides(col = guide_legend(reverse = TRUE)) +
-    theme_tb() +
-    ggtitle('Smeared and non-smeared incident cases') +
-    xlab('Year') +
-    ylab('Cases')
+  theme_tb() +
+  ggtitle('Smeared and non-smeared incident cases') +
+  xlab('Year') +
+  ylab('Cases')
 j_smeared_non_smeared_cases_over_time <- last_plot()
 
 # Proportion of smear-negative results among those

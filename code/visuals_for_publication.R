@@ -2,7 +2,6 @@
 # FIGURES
 #####
 
-library(Rmisc)
 library(extrafont)
 # Run visualize.R first
 a_incidence_by_age
@@ -24,11 +23,25 @@ p_death_by_age
 
 # FIGURE 1: GENERALLY INCIDENCE TRENDS
 pdf(file = 'figure_1_incidence.pdf')
-multiplot(b_incidence_over_time,
-          j_smeared_non_smeared_cases_over_time,
-          d_incidence_by_sex_over_time,
-          g_hiv_status_amont_incident_tb_over_time,
+Rmisc::multiplot(b_incidence_over_time,
+          j_smeared_non_smeared_cases_over_time +
+            theme(legend.position="bottom"),
+          d_incidence_by_sex_over_time +
+            theme(legend.position="bottom"),
+          g_hiv_status_amont_incident_tb_over_time +
+            theme(legend.position="bottom"),
           cols = 2)
+dev.off()
+png(filename = 'figure_1_incidence.png',
+    width = 500, height = 500)
+Rmisc::multiplot(b_incidence_over_time,
+                 j_smeared_non_smeared_cases_over_time +
+                   theme(legend.position="bottom"),
+                 d_incidence_by_sex_over_time +
+                   theme(legend.position="bottom"),
+                 g_hiv_status_amont_incident_tb_over_time +
+                   theme(legend.position="bottom"),
+                 cols = 2)
 dev.off()
 
 
@@ -49,7 +62,8 @@ lay_out = function(...) {
 
 pdf(file = 'figure_2_risk_factors.pdf')
 lay_out(list(z_incidence_by_sex_age_group_and_coinfection, 1, 1:2),
-           list(h_total_tb_and_hiv_coinfections, 2, 1),
+           list(h_total_tb_and_hiv_coinfections +
+                  theme(legend.position = 'bottom'), 2, 1),
            list(p_death_by_age, 2, 2))
 dev.off()
 
