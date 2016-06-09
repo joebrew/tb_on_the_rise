@@ -36,9 +36,10 @@ png(filename = 'figure_1_incidence.png',
     width = 500, height = 500)
 Rmisc::multiplot(b_incidence_over_time,
                  j_smeared_non_smeared_cases_over_time +
-                   theme(legend.position="bottom"),
+                   theme(legend.position="bottom") +
+                   ggtitle('Patients tested for sputum smear'),
                  d_incidence_by_sex_over_time +
-                   theme(legend.position="bottom"),
+                   theme(legend.position="top"),
                  g_hiv_status_amont_incident_tb_over_time +
                    theme(legend.position="bottom"),
                  cols = 2)
