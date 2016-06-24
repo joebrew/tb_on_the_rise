@@ -83,7 +83,7 @@ ggplot(data = temp,
   theme(axis.text.x = element_text(angle = 45,
                                    hjust = 1)) +
   xlab('Age group') +
-  ylab('Incidence (per 100,000)') +
+  ylab('Incidence rate (per 100,000)') +
   ggtitle('Average TB incidence by age group')
 
 a_incidence_by_age <- last_plot()
@@ -150,7 +150,7 @@ ggplot(data = ts,
   geom_area(fill = 'darkorange',
             alpha = 0.6) +
   xlab('Year') +
-  ylab('Incidence (per 100,000)') +
+  ylab('Incidence rate (per 100,000)') +
   theme_tb() +
   ggtitle('TB incidence over time')
 b_incidence_over_time <- last_plot()
@@ -184,7 +184,7 @@ ggplot(data = temp,
   theme(axis.text.x = element_text(angle = 45,
                                    hjust = 1)) +
   xlab('Age group') +
-  ylab('Incidence (per 100,000)') +
+  ylab('Incidence rate (per 100,000)') +
   ggtitle('Average TB incidence by age group')
 c_incidence_by_age <- last_plot()
 
@@ -207,8 +207,8 @@ ggplot(data = temp,
                      values = cols) +
   guides(col = guide_legend(reverse = TRUE)) +
   xlab('Year') +
-  ylab('Incidence (per 100,000)') +
-  ggtitle('Incidence over time by sex') +
+  ylab('Incidence rate (per 100,000)') +
+  ggtitle('Incidence rate over time by sex') +
   theme_tb()
 d_incidence_by_sex_over_time <- last_plot()
 
@@ -228,8 +228,8 @@ ggplot(data = temp,
   scale_color_manual(name = 'Age group',
                      values = cols) +
   xlab('Year') +
-  ylab('Incidence (per 100,000)') +
-  ggtitle('Incidence over time by age group') +
+  ylab('Incidence rate (per 100,000)') +
+  ggtitle('Incidence rate over time by age group') +
   theme_tb()
 e_incidence_by_age_over_time <- last_plot()
 
@@ -259,8 +259,8 @@ ggplot(data = temp,
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45)) +
   xlab('Age group') +
-  ylab('Incidence (per 100,000)') +
-  ggtitle('Incidence by sex and age group') +
+  ylab('Incidence rate (per 100,000)') +
+  ggtitle('Incidence rate by sex and age group') +
   scale_fill_manual(name = 'Sex',
                     values = cols) +
   guides(fill = guide_legend(reverse = TRUE))
@@ -336,12 +336,16 @@ ggplot() +
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45)) +
   xlab('Age group') +
-  ylab('Incidence (per 100,000)') +
-  ggtitle('Incidence by sex, age group, and HIV/TB status') +
+  ylab('Incidence rate (per 100,000)') +
+  ggtitle('Incidence rate by sex, age group, and HIV/TB status') +
   scale_color_manual(name = 'Sex',
                     values = cols) #+
   # guides(fill = guide_legend(reverse = TRUE))
 z_incidence_by_sex_age_group_and_coinfection <- last_plot()
+
+# BY SUBGROUP
+sex <- temp %>%
+  filter(incident_case) %>%
 
 #### HIV STATUS AND TB
 
@@ -390,7 +394,19 @@ tb %>%
   mutate(p = n / sum(n) * 100)
 
 
-cols <- c('darkgrey', 'darkgreen', 'darkorange')
+cols <- c('darkorange', 'darkgreen', 'grey')
+
+# Change levels to ensure HIV positive is on the bottom
+temp$hiv_status <-
+  factor(temp$hiv_status,
+         levels = c('Positive',
+                    'Negative',
+                    'Unknown'))
+# Order the rows also
+temp <- 
+  rbind(temp %>% filter(hiv_status == 'Positive'),
+        temp %>% filter(hiv_status == 'Negative'),
+        temp %>% filter(hiv_status == 'Unknown'))
 
 ggplot(data = temp,
        aes(x = year, 
@@ -471,6 +487,15 @@ ggplot(data = temp,
 i_incidence_smear_cases_tested_over_time <- last_plot()
 
 # NUMBER of smears
+# Keep only pulomonary cases
+temp <-
+  tb %>% 
+  filter(incident_case, tb_type == 'pulmonary') %>%
+  group_by(year) %>%
+  summarise(cases = n(),
+            smears = length(which(smear_result != 'not done' &
+                                    !is.na(smear_result)))) %>%
+  mutate(smear_rate = smears / cases * 100)
 gathered <- tidyr::gather(temp, key, value, cases:smear_rate) 
 gathered <- gathered %>% filter(key != 'smear_rate')
 gathered$key <-
@@ -494,7 +519,7 @@ ggplot(data = gathered,
                     values = cols) +
   # guides(col = guide_legend(reverse = TRUE)) +
   theme_tb() +
-  ggtitle('Smeared and non-smeared incident cases') +
+  ggtitle('Pulmonary smeared and non-smeared incident cases') +
   xlab('Year') +
   ylab('Cases')
 j_smeared_non_smeared_cases_over_time <- last_plot()
@@ -871,3 +896,83 @@ tbl <- table(temp$sex, temp$failure)
 tbl
 prop.table(tbl, 1)
 chisq.test(tbl)
+
+### Make a chart of all treatment outcomes
+temp <- 
+  tb %>%
+  group_by(year, ttm_result) %>%
+  tally %>%
+  mutate(ttm_result = Hmisc::capitalize(ttm_result))
+# Order differently
+
+
+cols <- colorRampPalette(brewer.pal(n = 9, name = 'Spectral'))(length(unique(temp$ttm_result)))
+ggplot(data = temp,
+       aes(x = year, 
+             y = n,
+           group = ttm_result,
+           fill = ttm_result)) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  scale_fill_manual(name = 'Outcome',
+                    values = cols) +
+  xlab('Year') +
+  ylab('Incident cases') +
+  theme_tb() +
+  ggtitle('Treatment outcomes')
+zzz <- last_plot()
+
+
+##### GET NUMBERS FOR 4 different categories
+# - In “Incidence by sex, age group and HIV/TB”, make 4 lines be: males, females, overall, smear positive
+
+sex <- 
+  tb %>%
+  filter(incident_case) %>%
+  group_by(age_group, sex) %>%
+  summarise(cases = n()) %>%
+# Get denominator
+  left_join(popuation %>%
+              group_by(age_group, sex) %>%
+              summarise(n = sum(n))) %>%
+  mutate(incidence_rate = cases / n * 100000)
+
+overall <-
+  tb %>%
+  filter(incident_case) %>%
+  group_by(age_group) %>%
+  summarise(overall = n(),
+            positive = length(which(smear_result == 'smear positive')),
+            negative = length(which(smear_result == 'smear negative'))) %>%
+  mutate(positive_rate = positive / (positive + negative) * 100) %>%
+  left_join(population %>%
+              group_by(age_group) %>%
+              summarise(n = sum(n))) %>%
+              mutate(overall_incidence_rate = overall / n * 100000)
+
+# Combine
+sex$indicator <- paste0(sex$sex, ' incidence rate')
+sex$value <- sex$incidence_rate
+overall <- overall %>%
+  tidyr::gather(indicator, value, contains('rate'))
+combined <- 
+  rbind(sex %>%
+          dplyr::select(age_group, indicator, value),
+        overall %>%
+          dplyr::select(age_group, indicator, value))
+combined$indicator <-
+  Hmisc::capitalize(gsub('_', ' ', combined$indicator))
+
+ggplot(data = combined,
+       aes(x = age_group, y = value,
+           color = indicator,
+           group = indicator)) + 
+  geom_line() +
+  # theme(legend.position = 'bottom')
+  theme_tb() +
+  xlab('Age group') +
+  ylab('Value') +
+  ggtitle('Average annualized ncidence and smear positivity rates') +
+  scale_color_manual(name = '',
+                     values = brewer.pal(4, 'Spectral'))
+  
+lines4 <- last_plot()

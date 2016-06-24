@@ -22,28 +22,48 @@ o_lost_to_followup_by_age
 p_death_by_age
 
 # FIGURE 1: GENERALLY INCIDENCE TRENDS
-pdf(file = 'figure_1_incidence.pdf')
-Rmisc::multiplot(b_incidence_over_time,
+pdf(file = 'figure_1_incidence_with_titles.pdf')
+Rmisc::multiplot(b_incidence_over_time, #+
+                   # ggtitle('A'),
           j_smeared_non_smeared_cases_over_time +
-            theme(legend.position="bottom"),
+            theme(legend.position="bottom"), #+
+            # ggtitle('C'),
           d_incidence_by_sex_over_time +
-            theme(legend.position="bottom"),
+            theme(legend.position="bottom"), #+
+            # ggtitle('B'),
           g_hiv_status_amont_incident_tb_over_time +
-            theme(legend.position="bottom"),
+            theme(legend.position="bottom"), #+
+            # ggtitle('D'),
           cols = 2)
 dev.off()
-png(filename = 'figure_1_incidence.png',
-    width = 500, height = 500)
-Rmisc::multiplot(b_incidence_over_time,
+
+# FIGURE 1: GENERALLY INCIDENCE TRENDS
+pdf(file = 'figure_1_incidence_with_letters.pdf')
+Rmisc::multiplot(b_incidence_over_time +
+                 ggtitle('A'),
                  j_smeared_non_smeared_cases_over_time +
                    theme(legend.position="bottom") +
-                   ggtitle('Patients tested for sputum smear'),
+                 ggtitle('C'),
                  d_incidence_by_sex_over_time +
-                   theme(legend.position="top"),
+                   theme(legend.position="bottom") +
+                 ggtitle('B'),
                  g_hiv_status_amont_incident_tb_over_time +
-                   theme(legend.position="bottom"),
+                   theme(legend.position="bottom") +
+                 ggtitle('D'),
                  cols = 2)
 dev.off()
+# png(filename = 'figure_1_incidence.png',
+#     width = 500, height = 500)
+# Rmisc::multiplot(b_incidence_over_time,
+#                  j_smeared_non_smeared_cases_over_time +
+#                    theme(legend.position="bottom") +
+#                    ggtitle('Patients tested for sputum smear'),
+#                  d_incidence_by_sex_over_time +
+#                    theme(legend.position="top"),
+#                  g_hiv_status_amont_incident_tb_over_time +
+#                    theme(legend.position="bottom"),
+#                  cols = 2)
+# dev.off()
 
 
 
@@ -62,10 +82,10 @@ lay_out = function(...) {
 } 
 
 pdf(file = 'figure_2_risk_factors.pdf')
-lay_out(list(z_incidence_by_sex_age_group_and_coinfection, 1, 1:2),
+lay_out(list(lines4, 1, 1:2),
            list(h_total_tb_and_hiv_coinfections +
                   theme(legend.position = 'bottom'), 2, 1),
-           list(p_death_by_age, 2, 2))
+           list(zzz, 2, 2))
 dev.off()
 
 
@@ -97,11 +117,11 @@ library(Hmisc)
 library(tidyr)
 
 # Get time period
-time_periods <- 
+time_periods <-
   data.frame(year = 1997:2012,
-             period = c(rep('1997-2000', 4), 
-                        rep('2001-2004', 4), 
-                        rep('2005-2008', 4), 
+             period = c(rep('1997-2000', 4),
+                        rep('2001-2004', 4),
+                        rep('2005-2008', 4),
                         rep('2009-2012', 4)))
 tb <- tb %>%
   left_join(time_periods)
@@ -122,19 +142,19 @@ tbl1 <- tb %>%
 # tbl1$total <- tbl1$n
 
 # Get percentage by hiv status and period
-tbl1 <- 
+tbl1 <-
   tbl1 %>%
   group_by(period) %>%
   dplyr::mutate(p = round(n / sum(n) * 100, digits = 2))
 
 # Combine n and p
-tbl1$n <- 
+tbl1$n <-
   ifelse(tbl1$n > 1,
          paste0(tbl1$n, ' (', tbl1$p, '%)'),
          '')
 tbl1$p <- NULL
-tbl1 <- spread(data = tbl1, 
-       key = hiv_status, 
+tbl1 <- spread(data = tbl1,
+       key = hiv_status,
        value = n) #%>%
   # mutate(negative = ifelse(is.na(negative), 0, negative),
   #        positive = ifelse(is.na(positive), 0, positive),
@@ -144,35 +164,35 @@ tbl1 <- spread(data = tbl1,
 tbl1 <- tbl1 %>%
   mutate(period = as.character(period)) %>%
   mutate(period = capitalize(period),
-         ttm_result = capitalize(ttm_result)) 
-# 
+         ttm_result = capitalize(ttm_result))
+#
 # tbl1$negative[tbl1$negative == 0] <- ''
 # tbl1$positive[tbl1$positive <= 1] <- ''
 # Get percentage by period
-# 
+#
 # tbl1 <- tbl1 %>%
 #   group_by(Period) %>%
 #   mutate(negative = ifelse(period %in% c('2005-2008',
 #                                          '2009-2012'),
-#                            paste0(negative, 
+#                            paste0(negative,
 #                                   ' (',
-#                                   round(100 * as.numeric(negative) / 
+#                                   round(100 * as.numeric(negative) /
 #                                           sum(as.numeric(negative), na.rm = T), digits = 1),
 #                                   '%)'),
 #                            negative),
 #          positive = ifelse(period %in% c('2005-2008',
 #                                          '2009-2012'),
-#                            paste0(positive, 
+#                            paste0(positive,
 #                                   ' (',
-#                                   round(100 * as.numeric(positive) / 
+#                                   round(100 * as.numeric(positive) /
 #                                           sum(as.numeric(positive), na.rm = T), digits = 1),
 #                                   '%)'),
 #                            positive),
 #          unknown = ifelse(period %in% c('2005-2008',
 #                                          '2009-2012'),
-#                            paste0(unknown, 
+#                            paste0(unknown,
 #                                   ' (',
-#                                   round(100 * as.numeric(unknown) / 
+#                                   round(100 * as.numeric(unknown) /
 #                                           sum(as.numeric(unknown), na.rm = T), digits = 1),
 #                                   '%)'),
 #                            unknown))
@@ -184,7 +204,7 @@ names(tbl1)[2] <- 'Treatment outcome'
 
 
 # # Rearrange columns
-# tbl1 <- 
+# tbl1 <-
 #   tbl1[,c('Period',
 #           'Treatment outcome',
 #           'Negative',
@@ -195,7 +215,7 @@ names(tbl1)[2] <- 'Treatment outcome'
 # Add a column for totals
 extract_number <- function(z){
   ifelse(is.na(z) | z == '', 0,
-         as.numeric(lapply(strsplit(z, ' '), 
+         as.numeric(lapply(strsplit(z, ' '),
                                   function(x){x[[1]]})))
   }
 
@@ -205,10 +225,10 @@ tbl1$Total <-
   extract_number(tbl1$Unknown)
 
 # Get Total of each period
-tbl1 <- 
+tbl1 <-
   tbl1 %>%
   group_by(Period) %>%
-  dplyr::mutate(Total = paste0(Total, 
+  dplyr::mutate(Total = paste0(Total,
                         ' (',
                         round(Total / sum(Total) * 100, digits = 2),
                         '%)'))
@@ -216,7 +236,7 @@ tbl1 <-
 # Remove the repetivie periods
 tbl1$Period[c(2:6, 8:12, 14:18, 20:24)] <- ''
 
-stargazer(tbl1, 
+stargazer(tbl1,
           # type = 'html',
           title = 'Treatment outcomes by time and HIV status',
           summary = FALSE,
