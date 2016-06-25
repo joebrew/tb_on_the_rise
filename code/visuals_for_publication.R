@@ -38,18 +38,33 @@ Rmisc::multiplot(b_incidence_over_time, #+
 dev.off()
 
 # FIGURE 1: GENERALLY INCIDENCE TRENDS
+label_df <- data.frame(x = c(2009, 2009),
+                       y = c(400, 650),
+                       label = c('Women', 'Men'))
 pdf(file = 'figure_1_incidence_with_letters.pdf')
 Rmisc::multiplot(b_incidence_over_time +
-                 ggtitle('A'),
+                 ggtitle('A') +
+                   scale_x_discrete(limit = c(1997:2012)) +
+                   theme(axis.text.x = element_text(angle = 90, hjust = 1)),
                  j_smeared_non_smeared_cases_over_time +
                    theme(legend.position="bottom") +
-                 ggtitle('C'),
+                 ggtitle('C') +
+                   scale_x_discrete(limit = c(1997:2012)) +
+                   theme(axis.text.x = element_text(angle = 90, hjust = 1)) ,
                  d_incidence_by_sex_over_time +
-                   theme(legend.position="bottom") +
-                 ggtitle('B'),
+                   # theme(legend.position="bottom") +
+                   theme(legend.position="none") +
+                 ggtitle('B') +
+                   scale_x_discrete(limit = c(1997:2012)) +
+                   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+                   geom_text(data = label_df,
+                              aes(x = x, y = y, label = label),
+                             alpha = 0.6),
                  g_hiv_status_amont_incident_tb_over_time +
                    theme(legend.position="bottom") +
-                 ggtitle('D'),
+                   ggtitle('D') +
+                   scale_x_discrete(limit = c(1997:2012)) +
+                   theme(axis.text.x = element_text(angle = 90, hjust = 1)), 
                  cols = 2)
 dev.off()
 # png(filename = 'figure_1_incidence.png',

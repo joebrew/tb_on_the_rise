@@ -971,8 +971,9 @@ ggplot(data = combined,
   theme_tb() +
   xlab('Age group') +
   ylab('Value') +
-  ggtitle('Average annualized ncidence and smear positivity rates') +
+  ggtitle('Average annualized incidence and smear positivity rates') +
   scale_color_manual(name = '',
-                     values = brewer.pal(4, 'Spectral'))
+                     values = brewer.pal(4, 'Spectral')) +
+  geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
   
 lines4 <- last_plot()
