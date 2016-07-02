@@ -494,27 +494,41 @@ temp <-
   group_by(year) %>%
   summarise(cases = n(),
             smears = length(which(smear_result != 'not done' &
-                                    !is.na(smear_result)))) %>%
-  mutate(smear_rate = smears / cases * 100)
-gathered <- tidyr::gather(temp, key, value, cases:smear_rate) 
-gathered <- gathered %>% filter(key != 'smear_rate')
-gathered$key <-
-  ifelse(gathered$key == 'cases', 'Not smeared',
-         ifelse(gathered$key == 'smears', 'Smeared',
-                NA))
+                                    !is.na(smear_result))),
+            smear_positive = length(which(smear_result == 'smear positive')),
+            smear_negative = length(which(smear_result == 'smear negative'))) %>%
+  mutate(smear_rate = smears / cases * 100) %>%
+  mutate(positive_rate = smear_positive / smears * 100,
+         negative_rate = smear_negative / smears * 100) %>%
+  mutate(not_smeared = cases - smears)
+gathered <- tidyr::gather(temp, key, value, cases:not_smeared) 
+gathered <- gathered %>% filter(key %in% c('smear_positive',
+                                           'smear_negative',
+                                           'not_smeared'))
+
+# gathered$key <-
+#   ifelse(gathered$key == 'cases', 'Not smeared',
+#          ifelse(gathered$key == 'smears', 'Smeared',
+#                 NA))
+# gathered$key <-
+#   factor(gathered$key,
+#          levels = c('Not smeared', 'Smeared'))
+cols <- c('darkgreen', 'darkorange', 'darkblue')
+
+gathered$key <- Hmisc::capitalize(gsub('_', ' ', gathered$key))
 gathered$key <-
   factor(gathered$key,
-         levels = c('Not smeared', 'Smeared'))
-cols <- c('darkgreen', 'darkorange')
-# Reverse order
-gathered <- gathered[nrow(gathered):1,]
+         levels = c('Not smeared',
+                    'Smear positive',
+                    'Smear negative'))
 
-ggplot(data = gathered,
-       aes(x = year, 
-           y = value,
-           group = key,
-           fill = key)) +
-  geom_area(position = 'stack', alpha = 0.8) +
+ggplot() +
+  geom_area(data = gathered,
+            aes(x = year, 
+                y = value,
+                group = key,
+                fill = key),
+            position = 'stack', alpha = 0.8) +
   scale_fill_manual(name = '',
                     values = cols) +
   # guides(col = guide_legend(reverse = TRUE)) +
