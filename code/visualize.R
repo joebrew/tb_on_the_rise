@@ -968,11 +968,13 @@ sex$indicator <- paste0(sex$sex, ' incidence rate')
 sex$value <- sex$incidence_rate
 overall <- overall %>%
   tidyr::gather(indicator, value, contains('rate'))
+sex <-  sex %>%
+  dplyr::select(age_group, indicator, value) %>% ungroup
+overall <- overall  %>%
+  dplyr::select(age_group, indicator, value) %>% ungroup
 combined <- 
-  rbind(sex %>%
-          dplyr::select(age_group, indicator, value),
-        overall %>%
-          dplyr::select(age_group, indicator, value))
+  rbind(sex,
+        overall)
 combined$indicator <-
   Hmisc::capitalize(gsub('_', ' ', combined$indicator))
 

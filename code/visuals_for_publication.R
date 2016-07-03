@@ -96,13 +96,15 @@ lay_out = function(...) {
   }
 } 
 
-pdf(file = 'figure_2_risk_factors_with_letters.pdf')
+pdf(file = 'figure_2_risk_factors_with_letters.pdf',
+    height = 7, width = 9)
 lay_out(list(lines4 +
                ggtitle('A'), 1, 1:2),
            list(h_total_tb_and_hiv_coinfections +
                   theme(legend.position = 'bottom') +
                   ggtitle('B'), 2, 1),
-           list(zzz + ggtitle('C'), 2, 2))
+           list(zzz + ggtitle('C') +
+                  theme(legend.position="bottom"), 2, 2))
 dev.off()
 
 
