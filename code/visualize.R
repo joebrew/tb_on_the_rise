@@ -914,10 +914,44 @@ chisq.test(tbl)
 ### Make a chart of all treatment outcomes
 temp <- 
   tb %>%
+  filter(!is.na(ttm_result)) %>%
   group_by(year, ttm_result) %>%
   tally %>%
   mutate(ttm_result = Hmisc::capitalize(ttm_result))
+
+# Get percentage version
+temp <- 
+  temp %>%
+  group_by(year) %>%
+  mutate(denom = sum(n, na.rm = TRUE)) %>%
+  ungroup %>%
+  mutate(n = n / denom * 100)
+
+
 # Order differently
+temp <-
+  rbind(temp %>%
+          filter(ttm_result == 'Death'),
+        temp %>%
+          filter(ttm_result == 'Lost to follow up'),
+        temp %>%
+          filter(ttm_result == 'Not evaluated: transferred out'),
+        temp %>%
+          filter(ttm_result == 'Treatment failed'),
+        temp %>%
+          filter(ttm_result == 'Treatment completed'),
+        temp %>%
+          filter(ttm_result == 'Cured'))
+
+# Level differently
+temp$ttm_result <-
+  factor(temp$ttm_result,
+         levels = c('Death',
+                    'Lost to follow up',
+                    'Not evaluated: transferred out',
+                    'Treatment failed',
+                    'Treatment completed',
+                    'Cured'))
 
 
 cols <- colorRampPalette(brewer.pal(n = 9, name = 'Spectral'))(length(unique(temp$ttm_result)))
@@ -926,9 +960,11 @@ ggplot(data = temp,
              y = n,
            group = ttm_result,
            fill = ttm_result)) +
-  geom_bar(stat = 'identity', position = 'stack') +
+  # geom_bar(stat = 'identity', position = 'stack') +
+  geom_area(position = 'stack') +
   scale_fill_manual(name = 'Outcome',
-                    values = cols) +
+                    values = cols,
+                    guide = guide_legend(reverse = TRUE)) +
   xlab('Year') +
   ylab('Incident cases') +
   theme_tb() +
