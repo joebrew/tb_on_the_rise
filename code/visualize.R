@@ -993,11 +993,12 @@ overall <-
   summarise(overall = n(),
             positive = length(which(smear_result == 'smear positive')),
             negative = length(which(smear_result == 'smear negative'))) %>%
-  mutate(positive_rate = positive / (positive + negative) * 100) %>%
+  # mutate(positive_rate = positive / (positive + negative) * 100) %>%
   left_join(population %>%
               group_by(age_group) %>%
               summarise(n = sum(n))) %>%
-              mutate(overall_incidence_rate = overall / n * 100000)
+              mutate(overall_incidence_rate = overall / n * 100000,
+                     overall_positive_rate = positive / n * 100000)
 
 # Combine
 sex$indicator <- paste0(sex$sex, ' incidence rate')
@@ -1022,7 +1023,7 @@ ggplot(data = combined,
   # theme(legend.position = 'bottom')
   theme_tb() +
   xlab('Age group') +
-  ylab('Value') +
+  ylab('Incidence rate (per 100,000)') +
   ggtitle('Average annualized incidence and smear positivity rates') +
   scale_color_manual(name = '',
                      values = brewer.pal(4, 'Spectral')) +
