@@ -966,7 +966,7 @@ ggplot(data = temp,
                     values = cols,
                     guide = guide_legend(reverse = TRUE)) +
   xlab('Year') +
-  ylab('Incident cases') +
+  ylab('Percentage (of all incident cases)') +
   theme_tb() +
   ggtitle('Treatment outcomes')
 zzz <- last_plot()
