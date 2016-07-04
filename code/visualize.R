@@ -998,7 +998,7 @@ overall <-
               group_by(age_group) %>%
               summarise(n = sum(n))) %>%
               mutate(overall_incidence_rate = overall / n * 100000,
-                     overall_positive_rate = positive / n * 100000)
+                     overall_smear_positive_rate = positive / n * 100000)
 
 # Combine
 sex$indicator <- paste0(sex$sex, ' incidence rate')
