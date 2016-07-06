@@ -16,6 +16,9 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 library(ggthemes)
+library(gtable)
+library(grid)
+library(gridExtra)
 
 # Read and clean
 source(paste0(code_dir, '/read_and_clean.R'))
@@ -538,6 +541,58 @@ ggplot() +
   ylab('Cases')
 j_smeared_non_smeared_cases_over_time <- last_plot()
 
+# Create a version of the above with two y-axes
+
+# Base plot
+p1 <- j_smeared_non_smeared_cases_over_time +
+  # + theme_bw() + %+replace%  +
+  theme_tb() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.grid = element_line(colour = NA)) +
+  theme(legend.position="bottom") +
+  labs(title = 'C',
+       subtitle = 'Red line / right axis: % smear negative of all pulmonary cases') +
+  theme(panel.grid.major=element_blank()) 
+
+# Overline
+gathered <- data.frame(gathered)
+data2 <- gathered %>%
+  group_by(year) %>%
+  summarise(p_smear_negative = sum(value[key == 'Smear negative']) / 
+              sum(value) * 100)
+  
+p2 <- ggplot(data = data2,
+             aes(x = year, y = p_smear_negative)) +
+  geom_line(color = 'darkred', alpha = 0.8) + #theme_bw() %+replace% 
+  theme_tb() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.grid = element_line(colour = NA)) +
+  theme(panel.grid.major=element_blank()) 
+
+
+# extract gtable
+g1 <- ggplot_gtable(ggplot_build(p1))
+g2 <- ggplot_gtable(ggplot_build(p2))
+
+# overlap the panel of 2nd plot on that of 1st plot
+pp <- c(subset(g1$layout, name == "panel", se = t:r))
+g <- gtable_add_grob(g1, g2$grobs[[which(g2$layout$name == "panel")]], pp$t, 
+                     pp$l, pp$b, pp$l)
+
+# axis tweaks
+ia <- which(g2$layout$name == "axis-l")
+ga <- g2$grobs[[ia]]
+ax <- ga$children[[2]]
+ax$widths <- rev(ax$widths)
+ax$grobs <- rev(ax$grobs)
+ax$grobs[[1]]$x <- ax$grobs[[1]]$x - unit(1, "npc") + unit(0.15, "cm")
+g <- gtable_add_cols(g, g2$widths[g2$layout[ia, ]$l], length(g$widths) - 1)
+g <- gtable_add_grob(g, ax, pp$t, length(g$widths) - 1, pp$b)
+
+# draw it
+j_smeared_non_smeared_cases_over_time_with_line <- g
+grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
+
 # Proportion of smear-negative results among those
 # having a smear test
 temp <-
@@ -1030,3 +1085,30 @@ ggplot(data = combined,
   geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
   
 lines4 <- last_plot()
+
+
+#### Likelihood of lost to followup
+fit <- glm(tb$ttm_result == 'lost to follow up' ~
+             tb$new_case == 'previously treated cases',
+           family = 'binomial')
+# Get OR
+exp(coef(fit))
+exp(confint(fit))
+
+fit <- glm(tb$ttm_result == 'lost to follow up' ~
+             tb$years_old < 18,
+           family = 'binomial')
+# Get OR
+exp(coef(fit))
+exp(confint(fit))
+
+#### Likelihood of death by hiv status
+temp <- tb[tb$hiv_status != 'unknown' &
+             !is.na(tb$hiv_status),]
+temp$death <- temp$ttm_result == 'death'
+temp$hiv <- temp$hiv_status == 'positive'
+fit <- glm(death ~ hiv,
+           data = temp,
+           family = 'binomial')
+exp(coef(fit))
+exp(confint(fit))

@@ -6,6 +6,12 @@
 
 \begin{landscape}
 
+
+
+
+
+% Table created by stargazer v.5.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Wed, Jul 06, 2016 - 03:50:53 PM
 \begin{table}[!htbp] \centering 
   \caption{Treatment outcomes by time and HIV status} 
   \label{} 
@@ -14,33 +20,34 @@
 \hline \\[-1.8ex] 
 Period & Treatment outcome & Negative & Positive & Unknown & Total \\ 
 \hline \\[-1.8ex] 
-1997-2000 & Cured &  &  & 469 (45.45\%) & 469 (45.45\%) \\ 
- & Death &  &  & 177 (17.15\%) & 177 (17.15\%) \\ 
- & Lost to follow up &  &  & 98 (9.5\%) & 98 (9.5\%) \\ 
- & Not evaluated: transferred out &  &  & 22 (2.13\%) & 22 (2.13\%) \\ 
- & Treatment completed &  &  & 260 (25.19\%) & 260 (25.19\%) \\ 
- & Treatment failed &  &  & 6 (0.58\%) & 6 (0.58\%) \\ 
-2001-2004 & Cured &  &  & 735 (42.36\%) & 735 (42.39\%) \\ 
- & Death &  &  & 307 (17.69\%) & 307 (17.7\%) \\ 
- & Lost to follow up &  &  & 234 (13.49\%) & 234 (13.49\%) \\ 
- & Not evaluated: transferred out &  &  & 57 (3.29\%) & 57 (3.29\%) \\ 
- & Treatment completed &  &  & 370 (21.33\%) & 370 (21.34\%) \\ 
- & Treatment failed &  &  & 31 (1.79\%) & 31 (1.79\%) \\ 
-2005-2008 & Cured & 189 (7.92\%) & 327 (13.7\%) & 524 (21.96\%) & 1040 (43.59\%) \\ 
- & Death & 36 (1.51\%) & 122 (5.11\%) & 191 (8.01\%) & 349 (14.63\%) \\ 
- & Lost to follow up & 16 (0.67\%) & 45 (1.89\%) & 90 (3.77\%) & 151 (6.33\%) \\ 
- & Not evaluated: transferred out & 5 (0.21\%) & 9 (0.38\%) & 27 (1.13\%) & 41 (1.72\%) \\ 
- & Treatment completed & 149 (6.24\%) & 313 (13.12\%) & 320 (13.41\%) & 782 (32.77\%) \\ 
- & Treatment failed & 2 (0.08\%) & 7 (0.29\%) & 14 (0.59\%) & 23 (0.96\%) \\ 
-2009-2012 & Cured & 353 (10.01\%) & 745 (21.13\%) & 8 (0.23\%) & 1106 (31.38\%) \\ 
- & Death & 84 (2.38\%) & 442 (12.54\%) & 18 (0.51\%) & 544 (15.43\%) \\ 
- & Lost to follow up & 105 (2.98\%) & 211 (5.99\%) & 11 (0.31\%) & 327 (9.28\%) \\ 
- & Not evaluated: transferred out & 18 (0.51\%) & 40 (1.13\%) & 3 (0.09\%) & 61 (1.73\%) \\ 
- & Treatment completed & 426 (12.09\%) & 1012 (28.71\%) & 12 (0.34\%) & 1450 (41.13\%) \\ 
- & Treatment failed & 9 (0.26\%) & 28 (0.79\%) &  & 37 (1.05\%) \\ 
+1997-2000 & cured &  &  & 469 (45.45\%) & 469 (45.45\%) \\ 
+ & death &  &  & 177 (17.15\%) & 177 (17.15\%) \\ 
+ & lost to follow up &  &  & 98 (9.5\%) & 98 (9.5\%) \\ 
+ & not evaluated: transferred out &  &  & 22 (2.13\%) & 22 (2.13\%) \\ 
+ & treatment completed &  &  & 260 (25.19\%) & 260 (25.19\%) \\ 
+ & treatment failed &  &  & 6 (0.58\%) & 6 (0.58\%) \\ 
+2001-2004 & cured &  &  & 735 (42.39\%) & 735 (42.39\%) \\ 
+ & death &  &  & 307 (17.7\%) & 307 (17.7\%) \\ 
+ & lost to follow up &  &  & 234 (13.49\%) & 234 (13.49\%) \\ 
+ & not evaluated: transferred out &  &  & 57 (3.29\%) & 57 (3.29\%) \\ 
+ & treatment completed &  &  & 370 (21.34\%) & 370 (21.34\%) \\ 
+ & treatment failed &  &  & 31 (1.79\%) & 31 (1.79\%) \\ 
+2005-2008 & cured & 189 (47.61\%) & 327 (39.73\%) & 524 (44.94\%) & 1040 (43.59\%) \\ 
+ & death & 36 (9.07\%) & 122 (14.82\%) & 191 (16.38\%) & 349 (14.63\%) \\ 
+ & lost to follow up & 16 (4.03\%) & 45 (5.47\%) & 90 (7.72\%) & 151 (6.33\%) \\ 
+ & not evaluated: transferred out & 5 (1.26\%) & 9 (1.09\%) & 27 (2.32\%) & 41 (1.72\%) \\ 
+ & treatment completed & 149 (37.53\%) & 313 (38.03\%) & 320 (27.44\%) & 782 (32.77\%) \\ 
+ & treatment failed & 2 (0.5\%) & 7 (0.85\%) & 14 (1.2\%) & 23 (0.96\%) \\ 
+2009-2012 & cured & 353 (35.48\%) & 745 (30.06\%) & 8 (15.38\%) & 1106 (31.38\%) \\ 
+ & death & 84 (8.44\%) & 442 (17.84\%) & 18 (34.62\%) & 544 (15.43\%) \\ 
+ & lost to follow up & 105 (10.55\%) & 211 (8.51\%) & 11 (21.15\%) & 327 (9.28\%) \\ 
+ & not evaluated: transferred out & 18 (1.81\%) & 40 (1.61\%) & 3 (5.77\%) & 61 (1.73\%) \\ 
+ & treatment completed & 426 (42.81\%) & 1012 (40.84\%) & 12 (23.08\%) & 1450 (41.13\%) \\ 
+ & treatment failed & 9 (0.9\%) & 28 (1.13\%) &  & 37 (1.05\%) \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
+
 
 \end{landscape}
 

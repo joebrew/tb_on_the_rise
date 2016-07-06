@@ -41,31 +41,29 @@ dev.off()
 label_df <- data.frame(x = c(2009, 2009),
                        y = c(400, 650),
                        label = c('Women', 'Men'))
+# Rmisc::multiplot(
+a <- ggplot_gtable(ggplot_build(b_incidence_over_time +
+                                  ggtitle('A') +
+                                  scale_x_discrete(limit = c(1997:2012)) +
+                                  theme(axis.text.x = element_text(angle = 90, hjust = 1))))
+
+b <- j_smeared_non_smeared_cases_over_time_with_line
+
+c <- ggplot_gtable(ggplot_build(d_incidence_by_sex_over_time +
+                                  theme(legend.position="none") +
+                                  ggtitle('B') +
+                                  scale_x_discrete(limit = c(1997:2012)) +
+                                  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+                                  geom_text(data = label_df,
+                                            aes(x = x, y = y, label = label),
+                                            alpha = 0.6)))
+d <- ggplot_gtable(ggplot_build(g_hiv_status_amont_incident_tb_over_time +
+                                  theme(legend.position="bottom") +
+                                  ggtitle('D') +
+                                  scale_x_discrete(limit = c(1997:2012)) +
+                                  theme(axis.text.x = element_text(angle = 90, hjust = 1))))
 pdf(file = 'figure_1_incidence_with_letters.pdf')
-Rmisc::multiplot(b_incidence_over_time +
-                 ggtitle('A') +
-                   scale_x_discrete(limit = c(1997:2012)) +
-                   theme(axis.text.x = element_text(angle = 90, hjust = 1)),
-                 j_smeared_non_smeared_cases_over_time +
-                   theme(legend.position="bottom") +
-                 ggtitle('C') +
-                   scale_x_discrete(limit = c(1997:2012)) +
-                   theme(axis.text.x = element_text(angle = 90, hjust = 1)) ,
-                 d_incidence_by_sex_over_time +
-                   # theme(legend.position="bottom") +
-                   theme(legend.position="none") +
-                 ggtitle('B') +
-                   scale_x_discrete(limit = c(1997:2012)) +
-                   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-                   geom_text(data = label_df,
-                              aes(x = x, y = y, label = label),
-                             alpha = 0.6),
-                 g_hiv_status_amont_incident_tb_over_time +
-                   theme(legend.position="bottom") +
-                   ggtitle('D') +
-                   scale_x_discrete(limit = c(1997:2012)) +
-                   theme(axis.text.x = element_text(angle = 90, hjust = 1)), 
-                 cols = 2)
+grid.arrange(a, c, b, d)
 dev.off()
 # png(filename = 'figure_1_incidence.png',
 #     width = 500, height = 500)
@@ -163,7 +161,7 @@ tbl1 <- tb %>%
 # Get percentage by hiv status and period
 tbl1 <-
   tbl1 %>%
-  group_by(period) %>%
+  group_by(period, hiv_status) %>%
   dplyr::mutate(p = round(n / sum(n) * 100, digits = 2))
 
 # Combine n and p
@@ -253,6 +251,7 @@ tbl1 <-
                         '%)'))
 
 # Remove the repetivie periods
+tbl1$Period <- as.character(tbl1$Period)
 tbl1$Period[c(2:6, 8:12, 14:18, 20:24)] <- ''
 
 stargazer(tbl1,
