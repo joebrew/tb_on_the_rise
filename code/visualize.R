@@ -503,25 +503,25 @@ temp <-
   mutate(smear_rate = smears / cases * 100) %>%
   mutate(positive_rate = smear_positive / smears * 100,
          negative_rate = smear_negative / smears * 100) %>%
-  mutate(not_smeared = cases - smears)
-gathered <- tidyr::gather(temp, key, value, cases:not_smeared) 
+  mutate(no_smear_result = cases - smears)
+gathered <- tidyr::gather(temp, key, value, cases:no_smear_result) 
 gathered <- gathered %>% filter(key %in% c('smear_positive',
                                            'smear_negative',
-                                           'not_smeared'))
+                                           'no_smear_result'))
 
 # gathered$key <-
-#   ifelse(gathered$key == 'cases', 'Not smeared',
+#   ifelse(gathered$key == 'cases', 'No smear result',
 #          ifelse(gathered$key == 'smears', 'Smeared',
 #                 NA))
 # gathered$key <-
 #   factor(gathered$key,
-#          levels = c('Not smeared', 'Smeared'))
+#          levels = c('No smear result', 'Smeared'))
 cols <- c('darkgreen', 'darkorange', 'darkblue')
 
 gathered$key <- Hmisc::capitalize(gsub('_', ' ', gathered$key))
 gathered$key <-
   factor(gathered$key,
-         levels = c('Not smeared',
+         levels = c('No smear result',
                     'Smear positive',
                     'Smear negative'))
 
@@ -550,24 +550,44 @@ p1 <- j_smeared_non_smeared_cases_over_time +
   theme(panel.background = element_rect(fill = NA),
         panel.grid = element_line(colour = NA)) +
   theme(legend.position="bottom") +
-  labs(title = 'C',
-       subtitle = 'Red line / right axis: % smear negative of all pulmonary cases') +
+  labs(title = 'C') +
   theme(panel.grid.major=element_blank()) 
 
 # Overline
 gathered <- data.frame(gathered)
 data2 <- gathered %>%
+  filter(key != 'No smear result') %>%
   group_by(year) %>%
   summarise(p_smear_negative = sum(value[key == 'Smear negative']) / 
-              sum(value) * 100)
+              sum(value) * 100,
+            p_smear_positive = sum(value[key == 'Smear positive']) / 
+              sum(value) * 100) %>%
+  mutate(z = '% of positive pulmonary cases')
+
+# Create a dataframe for labeling the red line
+red_line_label <-
+  data.frame(x = 1999,
+             y = 75,
+             label = '% smear positive of\nall pulmonary cases\nwith smear result')
   
-p2 <- ggplot(data = data2,
-             aes(x = year, y = p_smear_negative)) +
-  geom_line(color = 'darkred', alpha = 0.8) + #theme_bw() %+replace% 
+p2 <- ggplot() +
+  geom_line(data = data2,
+            aes(x = year, y = p_smear_positive, color = z),
+            alpha = 0.8) + #theme_bw() %+replace% 
   theme_tb() +
   theme(panel.background = element_rect(fill = NA),
         panel.grid = element_line(colour = NA)) +
-  theme(panel.grid.major=element_blank()) 
+  theme(panel.grid.major=element_blank()) +
+  scale_colour_manual(name = '',
+                      values = 'darkred') +
+  theme(legend.position="bottom") +
+  geom_text(data = red_line_label,
+            aes(x = x, y = y, label = label),
+            color = 'darkred',
+            size = 2) +
+  scale_y_continuous(breaks = seq(0, 100, 25),
+                     labels = paste0(seq(0, 100, 25), '%'),
+                     limits = c(0,100))
 
 
 # extract gtable
