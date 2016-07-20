@@ -427,6 +427,7 @@ g_hiv_status_amont_incident_tb_over_time <- last_plot()
 
 #### AGE GROUP AMONG TB HIV CASES
 temp <- tb %>%
+  filter(year >= 2007) %>%
   group_by(age_group) %>%
   filter(hiv_status != 'unkown') %>%
   summarise(hiv = length(which(hiv_status == 'positive')),
@@ -448,7 +449,7 @@ ggplot(data = temp,
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45)) +
   xlab('Age group') +
-  ylab('Cases)') +
+  ylab('Total cases') +
   ggtitle('Total TB and TB-HIV co-infections') +
   scale_fill_manual(name = 'Status',
                     values = cols) 
@@ -518,12 +519,12 @@ gathered <- gathered %>% filter(key %in% c('smear_positive',
 #          levels = c('No smear result', 'Smeared'))
 cols <- c('darkgreen', 'darkorange', 'darkblue')
 
-gathered$key <- Hmisc::capitalize(gsub('_', ' ', gathered$key))
+gathered$key <- Hmisc::capitalize(gsub('_', '\n', gathered$key))
 gathered$key <-
   factor(gathered$key,
-         levels = c('No smear result',
-                    'Smear positive',
-                    'Smear negative'))
+         levels = c('No\nsmear\nresult',
+                    'Smear\npositive',
+                    'Smear\nnegative'))
 
 ggplot() +
   geom_area(data = gathered,
@@ -556,11 +557,11 @@ p1 <- j_smeared_non_smeared_cases_over_time +
 # Overline
 gathered <- data.frame(gathered)
 data2 <- gathered %>%
-  filter(key != 'No smear result') %>%
+  filter(key != 'No\nsmear\nresult') %>%
   group_by(year) %>%
-  summarise(p_smear_negative = sum(value[key == 'Smear negative']) / 
+  summarise(p_smear_negative = sum(value[key == 'Smear\nnegative']) / 
               sum(value) * 100,
-            p_smear_positive = sum(value[key == 'Smear positive']) / 
+            p_smear_positive = sum(value[key == 'Smear\npositive']) / 
               sum(value) * 100) %>%
   mutate(z = '% of positive pulmonary cases')
 
@@ -989,6 +990,7 @@ chisq.test(tbl)
 ### Make a chart of all treatment outcomes
 temp <- 
   tb %>%
+  filter(incident_case) %>%
   filter(!is.na(ttm_result)) %>%
   group_by(year, ttm_result) %>%
   tally %>%
@@ -1041,7 +1043,7 @@ ggplot(data = temp,
                     values = cols,
                     guide = guide_legend(reverse = TRUE)) +
   xlab('Year') +
-  ylab('Percentage (of all incident cases)') +
+  ylab('Proportion of cases starting treatment') +
   theme_tb() +
   ggtitle('Treatment outcomes')
 zzz <- last_plot()
