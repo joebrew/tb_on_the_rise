@@ -428,10 +428,12 @@ g_hiv_status_amont_incident_tb_over_time <- last_plot()
 #### AGE GROUP AMONG TB HIV CASES
 temp <- tb %>%
   filter(year >= 2007) %>%
+  filter(!is.na(hiv_status) & hiv_status !='unknown') %>%
   group_by(age_group) %>%
-  filter(hiv_status != 'unkown') %>%
   summarise(hiv = length(which(hiv_status == 'positive')),
-            tb = n()) %>%
+            tb = length(which(hiv_status == 'positive')) +
+              length(which(hiv_status == 'negative'))) %>%
+  ungroup %>%
   filter(!is.na(age_group))
 # Gather
 temp <-
@@ -445,7 +447,7 @@ temp$key <-
 cols <- adjustcolor(c('darkgreen', 'darkorange'), alpha.f = 0.6)
 ggplot(data = temp,
        aes(x = age_group, y = value, group = key, fill = key)) +
-  geom_bar(stat = 'identity', position = 'stack') +
+  geom_bar(stat = 'identity', position = 'dodge') +
   theme_tb() +
   theme(axis.text.x = element_text(angle = 45)) +
   xlab('Age group') +
@@ -1134,3 +1136,17 @@ fit <- glm(death ~ hiv,
            family = 'binomial')
 exp(coef(fit))
 exp(confint(fit))
+
+###
+# By gender:
+tb %>% group_by(gender, year) %>% tally %>% ungroup %>% group_by(year) %>% mutate(p = n / sum(n) * 100) %>% ggplot() + geom_line(aes(x = year, y = p, group = gender, color = gender)) + ylim(0, 100)
+
+# Increasing amount of cases by hiv status
+tb %>%
+  filter(year >= 2007) %>%
+  filter(hiv_status != 'unknown' & !is.na(hiv_status)) %>%
+  group_by(year, hiv_status) %>% 
+  tally %>%
+  mutate(p = n / sum(n) * 100) %>%
+  ggplot() +
+  geom_line(aes(x = year, y = p, group = hiv_status, color = hiv_status))

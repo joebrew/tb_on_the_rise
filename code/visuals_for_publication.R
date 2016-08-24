@@ -42,26 +42,33 @@ label_df <- data.frame(x = c(2009, 2009),
                        y = c(400, 650),
                        label = c('Women', 'Men'))
 # Rmisc::multiplot(
-a <- ggplot_gtable(ggplot_build(b_incidence_over_time +
-                                  ggtitle('A') +
-                                  scale_x_discrete(limit = c(1997:2012)) +
-                                  theme(axis.text.x = element_text(angle = 90, hjust = 1))))
+a_plot <- 
+  b_incidence_over_time +
+  ggtitle('A') +
+  scale_x_discrete(limit = c(1997:2012)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+a <- ggplot_gtable(ggplot_build(a_plot))
 
-b <- j_smeared_non_smeared_cases_over_time_with_line
+# b_plot <- j_smeared_non_smeared_cases_over_time_with_line
+b_plot <- j_smeared_non_smeared_cases_over_time
+b <- b_plot
 
-c <- ggplot_gtable(ggplot_build(d_incidence_by_sex_over_time +
-                                  theme(legend.position="none") +
-                                  ggtitle('B') +
-                                  scale_x_discrete(limit = c(1997:2012)) +
-                                  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-                                  geom_text(data = label_df,
-                                            aes(x = x, y = y, label = label),
-                                            alpha = 0.6)))
-d <- ggplot_gtable(ggplot_build(g_hiv_status_amont_incident_tb_over_time +
-                                  theme(legend.position="bottom") +
-                                  ggtitle('D') +
-                                  scale_x_discrete(limit = c(1997:2012)) +
-                                  theme(axis.text.x = element_text(angle = 90, hjust = 1))))
+c_plot <- d_incidence_by_sex_over_time +
+  theme(legend.position="none") +
+  ggtitle('B') +
+  scale_x_discrete(limit = c(1997:2012)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_text(data = label_df,
+            aes(x = x, y = y, label = label),
+            alpha = 0.6)
+c <- ggplot_gtable(ggplot_build(c_plot))
+
+d_plot <- g_hiv_status_amont_incident_tb_over_time +
+  theme(legend.position="bottom") +
+  ggtitle('D') +
+  scale_x_discrete(limit = c(1997:2012)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+d <- ggplot_gtable(ggplot_build(d_plot))
 pdf(file = 'figure_1_incidence_with_letters.pdf', width = 10, height = 7)
 grid.arrange(a, c, b, d)
 dev.off()
@@ -105,6 +112,34 @@ lay_out(list(lines4 +
                   theme(legend.position="bottom"), 2, 2))
 dev.off()
 
+# New version for resubmission
+
+pdf(file = 'resubmission_combined_figure.pdf',
+    height = 11, width = 9)
+lay_out(
+  list(a_plot, 1, 1),
+  list(b_plot +
+         ggtitle('B') +
+         theme(legend.position="bottom") +
+         scale_x_discrete(limit = c(1997:2012)), 1, 2),
+  list(c_plot +
+         ggtitle('C'), 2, 1),
+  list(d_plot +
+         ggtitle('D'), 2, 2),
+  list(lines4 +
+         ggtitle('E'), 3, 1:2),
+  list(h_total_tb_and_hiv_coinfections +
+         theme(legend.position = 'bottom') +
+         ggtitle('F'), 4, 1),
+  list(zzz + ggtitle('G') +
+         theme(legend.position="bottom"), 4, 2))
+dev.off()
+
+# Print all figures individually
+setwd('~/Desktop/figures_for_alberto')
+jpeg(filename = '1a.jpeg', width = 800, height = 800)
+plot(a)
+dev.off()
 
 # ALL FIGURES IN ONE DOCUMENT
 pdf(file = 'all_figures.pdf', height = 4.5, width = 4.5)
