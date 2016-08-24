@@ -150,8 +150,8 @@ ts <- incidence %>%
 
 ggplot(data = ts,
        aes(x = year, y = incidence)) +
-  geom_area(fill = 'darkorange',
-            alpha = 0.6) +
+  geom_area(fill = 'darkgrey',
+            alpha = 0.8) +
   xlab('Year') +
   ylab('Incidence rate (per 100,000)') +
   theme_tb() +
@@ -200,7 +200,7 @@ temp <-
   mutate(incidence = cases / n * 100000)
 
 # cols <- colorRampPalette(brewer.pal(9, 'Spectral'))(length(unique(temp$sex)))
-cols <- c('darkgreen', 'darkorange')
+cols <- c(grey(0.2), grey(0.6))
 ggplot(data = temp,
        aes(x = year,
            y = incidence)) +
@@ -397,7 +397,8 @@ tb %>%
   mutate(p = n / sum(n) * 100)
 
 
-cols <- c('darkorange', 'darkgreen', 'grey')
+# cols <- c('darkorange', 'darkgreen', 'grey')
+cols <- c(grey(0.1), grey(0.5), grey(0.9))
 
 # Change levels to ensure HIV positive is on the bottom
 temp$hiv_status <-
@@ -444,7 +445,8 @@ temp$key <-
          ifelse(temp$key == 'tb', 'TB',
                 NA))
 
-cols <- adjustcolor(c('darkgreen', 'darkorange'), alpha.f = 0.6)
+# cols <- adjustcolor(c('darkgreen', 'darkorange'), alpha.f = 0.6)
+cols <- c(grey(0.3), grey(0.8))
 ggplot(data = temp,
        aes(x = age_group, y = value, group = key, fill = key)) +
   geom_bar(stat = 'identity', position = 'dodge') +
@@ -519,8 +521,8 @@ gathered <- gathered %>% filter(key %in% c('smear_positive',
 # gathered$key <-
 #   factor(gathered$key,
 #          levels = c('No smear result', 'Smeared'))
-cols <- c('darkgreen', 'darkorange', 'darkblue')
-
+# cols <- c('darkgreen', 'darkorange', 'darkblue')
+cols <- c(grey(0.1), grey(0.5), grey(0.9))
 gathered$key <- Hmisc::capitalize(gsub('_', '\n', gathered$key))
 gathered$key <-
   factor(gathered$key,
@@ -541,7 +543,8 @@ ggplot() +
   theme_tb() +
   ggtitle('Pulmonary smeared and non-smeared incident cases') +
   xlab('Year') +
-  ylab('Cases')
+  ylab('Cases') +
+  theme(axis.text.x = element_text(angle = 90))
 j_smeared_non_smeared_cases_over_time <- last_plot()
 
 # Create a version of the above with two y-axes
@@ -1033,7 +1036,9 @@ temp$ttm_result <-
                     'Cured'))
 
 
-cols <- colorRampPalette(brewer.pal(n = 9, name = 'Spectral'))(length(unique(temp$ttm_result)))
+cols <- brewer.pal(n = 9, name = 'Greys')
+cols <- cols[3:9]
+cols <- colorRampPalette(cols)(length(unique(temp$ttm_result)))
 ggplot(data = temp,
        aes(x = year, 
              y = n,
@@ -1096,16 +1101,17 @@ combined$indicator <-
 
 ggplot(data = combined,
        aes(x = age_group, y = value,
-           color = indicator,
-           group = indicator)) + 
+           # color = indicator,
+           group = indicator,
+           lty = indicator)) + 
   geom_line() +
   # theme(legend.position = 'bottom')
   theme_tb() +
   xlab('Age group') +
   ylab('Incidence rate (per 100,000)') +
   ggtitle('Average annualized incidence and smear positivity rates') +
-  scale_color_manual(name = '',
-                     values = brewer.pal(4, 'Spectral')) +
+  # scale_color_manual(name = '',
+  #                    values = brewer.pal(4, 'Greys')) +
   geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
   
 lines4 <- last_plot()

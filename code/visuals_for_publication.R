@@ -69,6 +69,7 @@ d_plot <- g_hiv_status_amont_incident_tb_over_time +
   scale_x_discrete(limit = c(1997:2012)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 d <- ggplot_gtable(ggplot_build(d_plot))
+
 pdf(file = 'figure_1_incidence_with_letters.pdf', width = 10, height = 7)
 grid.arrange(a, c, b, d)
 dev.off()
