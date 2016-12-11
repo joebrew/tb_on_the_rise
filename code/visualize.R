@@ -1109,10 +1109,10 @@ ggplot(data = combined,
   theme_tb() +
   xlab('Age group') +
   ylab('Incidence rate (per 100,000)') +
-  ggtitle('Average annualized incidence and smear positivity rates') +
+  ggtitle('Average annualized incidence and smear positivity rates') #+
   # scale_color_manual(name = '',
   #                    values = brewer.pal(4, 'Greys')) +
-  geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
+  # geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
   
 lines4 <- last_plot()
 
