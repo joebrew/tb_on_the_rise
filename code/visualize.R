@@ -1050,9 +1050,11 @@ temp$ttm_result <-
                     'Cured'))
 
 
-cols <- brewer.pal(n = 9, name = 'Greys')
-cols <- cols[3:9]
+# cols <- brewer.pal(n = 9, name = 'Greys')
+# cols <- cols[3:9]
+cols <- brewer.pal(n = 9, name = 'Spectral')
 cols <- colorRampPalette(cols)(length(unique(temp$ttm_result)))
+cols[4] <- 'black'
 ggplot(data = temp,
        aes(x = year, 
              y = n,
