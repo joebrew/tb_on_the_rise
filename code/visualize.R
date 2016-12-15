@@ -623,6 +623,8 @@ g <- gtable_add_cols(g, g2$widths[g2$layout[ia, ]$l], length(g$widths) - 1)
 g <- gtable_add_grob(g, ax, pp$t, length(g$widths) - 1, pp$b)
 
 # draw it
+library(extrafont)
+
 j_smeared_non_smeared_cases_over_time_with_line <- g
 grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
 
