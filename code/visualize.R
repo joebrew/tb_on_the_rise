@@ -526,8 +526,9 @@ gathered <- gathered %>% filter(key %in% c('smear_positive',
 # gathered$key <-
 #   factor(gathered$key,
 #          levels = c('No smear result', 'Smeared'))
-# cols <- c('darkgreen', 'darkorange', 'darkblue')
-cols <- c(grey(0.1), grey(0.5), grey(0.9))
+cols <- c('darkgreen', 'darkorange', 'darkblue')
+# cols <- c(grey(0.1), grey(0.5), grey(0.9))
+
 gathered$key <- Hmisc::capitalize(gsub('_', '\n', gathered$key))
 gathered$key <-
   factor(gathered$key,
@@ -617,13 +618,18 @@ ga <- g2$grobs[[ia]]
 ax <- ga$children[[2]]
 ax$widths <- rev(ax$widths)
 ax$grobs <- rev(ax$grobs)
-ax$grobs[[1]]$x <- ax$grobs[[1]]$x - unit(1, "npc") + unit(0.15, "cm")
+# ax$grobs[[1]]$x <- ax$grobs[[1]]$x - unit(1, "npc") + unit(0.15, "cm")
 g <- gtable_add_cols(g, g2$widths[g2$layout[ia, ]$l], length(g$widths) - 1)
 g <- gtable_add_grob(g, ax, pp$t, length(g$widths) - 1, pp$b)
 
 # draw it
 j_smeared_non_smeared_cases_over_time_with_line <- g
 grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
+
+# Save it
+pdf('Panel C.pdf', width = 5, height = 3.5)
+grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
+dev.off()
 
 # Proportion of smear-negative results among those
 # having a smear test
@@ -1119,15 +1125,17 @@ ggplot(data = combined,
        aes(x = age_group, y = value,
            # color = indicator,
            group = indicator,
-           lty = indicator)) + 
+           lty = indicator,
+           color = indicator)) + 
   geom_line() +
   # theme(legend.position = 'bottom')
   theme_tb() +
   xlab('Age group') +
   ylab('Incidence rate (per 100,000)') +
-  ggtitle('Average annualized incidence and smear positivity rates') #+
-  # scale_color_manual(name = '',
-  #                    values = brewer.pal(4, 'Greys')) +
+  ggtitle('Average annualized incidence and smear positivity rates') +
+  scale_linetype_manual("", values=c(1,2,3,4)) +
+  scale_color_manual(name = '',
+                     values = brewer.pal(4, 'Spectral')) #+
   # geom_hline(yintercept = 100, lty = 2, color = 'darkgrey', alpha = 0.6)
   
 lines4 <- last_plot()
