@@ -23,8 +23,13 @@ library(gridExtra)
 # Read and clean
 source(paste0(code_dir, '/read_and_clean.R'))
 
+# Remove duplicates
+
 # Theme for plotting
 source(paste0(code_dir, '/theme.R'))
+
+# Write csv for alberto
+readr::write_csv(tb, '~/Desktop/tb.csv')
 
 ##### RESULTS SECTION
 
@@ -544,7 +549,8 @@ ggplot() +
   ggtitle('Pulmonary smeared and non-smeared incident cases') +
   xlab('Year') +
   ylab('Cases') +
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 90)) +
+  geom_hline(aes(yintercept = 100), lty = 3)
 j_smeared_non_smeared_cases_over_time <- last_plot()
 
 # Create a version of the above with two y-axes
@@ -760,6 +766,7 @@ tb %>%
 
 # Overall treatment success
 tb %>%
+  filter(incident_case) %>%
   group_by(ttm_result) %>%
   ungroup %>%
   mutate(success = ttm_result %in% c('cured',
@@ -796,6 +803,7 @@ m_outcomes_over_time <- last_plot()
 
 # How many total died?
 tb %>%
+  filter(incident_case) %>%
   group_by(ttm_result) %>%
   tally %>%
   mutate(p = n / sum(n) * 100)
@@ -853,9 +861,10 @@ chisq.test(tbl)
 # Overall treatment success
 temp <- 
   tb %>%
+  filter(incident_case) %>%
   mutate(success = ttm_result %in% c('cured',
                                      'treatment completed')) %>%
-  group_by(sex, succcess) %>%
+  group_by(sex, success) %>%
   tally %>%
   ungroup %>%
   group_by(sex) %>%
@@ -868,7 +877,12 @@ tbl <- table(temp$success, temp$sex)
 chisq.test(tbl)
 
 # DEATHS BY SEX
-tbl <- table(tb$ttm_result == 'death', tb$sex)
+tb %>%
+  filter(incident_case) %>%
+  group_by(sex, death = ttm_result == 'death') %>%
+  tally %>% 
+  filter(!is.na(death))
+tbl <- table(tb$ttm_result[tb$incident_case] == 'death', tb$sex[tb$incident_case])
 tbl
 prop.table(tbl, 2)
 chisq.test(tbl)
