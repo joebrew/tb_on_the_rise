@@ -548,7 +548,7 @@ ggplot() +
   theme_tb() +
   ggtitle('Pulmonary smeared and non-smeared incident cases') +
   xlab('Year') +
-  ylab('Cases') +
+  ylab('Pulmonary cases') +
   theme(axis.text.x = element_text(angle = 90)) +
   geom_hline(aes(yintercept = 100), lty = 3)
 j_smeared_non_smeared_cases_over_time <- last_plot()
