@@ -503,7 +503,8 @@ i_incidence_smear_cases_tested_over_time <- last_plot()
 # Keep only pulomonary cases
 temp <-
   tb %>% 
-  filter(incident_case, tb_type == 'pulmonary') %>%
+  filter(#incident_case, 
+         tb_type == 'pulmonary') %>%
   group_by(year) %>%
   summarise(cases = n(),
             smears = length(which(smear_result != 'not done' &
