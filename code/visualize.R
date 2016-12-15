@@ -550,8 +550,7 @@ ggplot() +
   ggtitle('Pulmonary smeared and non-smeared incident cases') +
   xlab('Year') +
   ylab('Pulmonary cases') +
-  theme(axis.text.x = element_text(angle = 90)) +
-  geom_hline(aes(yintercept = 100), lty = 3)
+  theme(axis.text.x = element_text(angle = 90)) 
 j_smeared_non_smeared_cases_over_time <- last_plot()
 
 # Create a version of the above with two y-axes
@@ -630,6 +629,11 @@ grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
 pdf('Panel C.pdf', width = 5, height = 3.5)
 grid.draw(j_smeared_non_smeared_cases_over_time_with_line)
 dev.off()
+
+# Add a line to j
+j_smeared_non_smeared_cases_over_time <- 
+  j_smeared_non_smeared_cases_over_time +
+  geom_hline(aes(yintercept = 100), lty = 3)
 
 # Proportion of smear-negative results among those
 # having a smear test
